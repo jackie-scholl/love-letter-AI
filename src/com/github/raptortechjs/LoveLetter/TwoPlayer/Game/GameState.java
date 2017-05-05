@@ -64,7 +64,7 @@ public interface GameState {
 		
 		GameState.Builder builder = new GameState.Builder();
 
-		List<Card> drawDeck = new ArrayList<>(Card.defaultDeck());
+		List<Card> drawDeck = new ArrayList<>(Card.defaultDeckList());
 
 		//Collections.shuffle(drawDeck); // "shuffle the 16 cards"
 		shuffle(drawDeck);

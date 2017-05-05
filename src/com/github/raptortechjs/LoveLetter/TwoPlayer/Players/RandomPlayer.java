@@ -9,7 +9,7 @@ public class RandomPlayer implements ThinkingPlayer {
 	private final Random r = new Random();
 
 	@Override
-	public void accept(Action action, PublicGameState oldState, PublicGameState newState) {}
+	public void accept(Action action, GameState3 oldState, GameState3 newState) {}
 
 	@Override
 	public Action chooseAction(Player us, PublicGameState state, Card inHand, Card justDrawn) {

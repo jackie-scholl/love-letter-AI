@@ -26,7 +26,7 @@ public class Game {
 			return;
 		}
 
-		PublicGameState initialState = state.getPublicState();
+		GameState3 initialState = GameState3.fromPublicGameState(state.getPublicState());
 
 		state = endProtection(state);
 		Card drawnCard = drawCard();
@@ -34,14 +34,14 @@ public class Game {
 		discardCard(drawnCard, action);
 		state = applyAction(action, state);
 		state = checkWin(state);
+		state = state.toBuilder().mapWhoseTurn(Player::other).mapTurnNumber(i -> i+1).build();
 
-		PublicGameState currentState = state.getPublicState();
+		GameState3 currentState = GameState3.fromPublicGameState(state.getPublicState());
 
 		for (GameObserver o : observers) {
 			o.accept(action, initialState, currentState);
 		}
 
-		state = state.toBuilder().mapWhoseTurn(Player::other).mapTurnNumber(i -> i+1).build();
 	}
 
 	public void runThrough() {

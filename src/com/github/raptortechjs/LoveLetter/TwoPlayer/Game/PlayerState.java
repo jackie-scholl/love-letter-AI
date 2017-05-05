@@ -9,7 +9,7 @@ public class PlayerState {
 	public final Card hand;
 	public final ImmutableList<Card> discardPile;
 	
-	private PlayerState(Card hand, List<Card> discardPile) {
+	public PlayerState(Card hand, List<Card> discardPile) {
 		this.hand = hand;
 		this.discardPile = ImmutableList.copyOf(discardPile);
 	}

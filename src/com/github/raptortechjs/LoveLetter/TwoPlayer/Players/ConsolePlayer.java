@@ -8,7 +8,7 @@ import java.util.Optional;
 import com.github.raptortechjs.LoveLetter.TwoPlayer.Game.*;
 
 public class ConsolePlayer implements ThinkingPlayer {
-	public void accept(Action action, PublicGameState oldState, PublicGameState newState) {}
+	public void accept(Action action, GameState3 oldState, GameState3 newState) {}
 
 	public Action chooseAction(Player us, PublicGameState state, Card inHand, Card justDrawn) {
 		Action actionChoice;

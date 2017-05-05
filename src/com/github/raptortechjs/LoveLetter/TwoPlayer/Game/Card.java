@@ -1,9 +1,13 @@
 package com.github.raptortechjs.LoveLetter.TwoPlayer.Game;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMultiset;
+import com.google.common.collect.Multiset;
 
 public enum Card {
 	PRINCESS (8, 1, 0),
@@ -39,7 +43,21 @@ public enum Card {
 		defaultDeck = defaultDeckBuilder.build();
 	}
 	
-	public static List<Card> defaultDeck() {
+	/*public static List<Card> defaultDeck() {
 		return defaultDeck;
+	}*/
+	
+	private static final ImmutableMultiset<Card> defaultDeckMultiset = 
+			Arrays.stream(Card.values())
+				.map(c -> Collections.nCopies(c.numberOfCopies, c))
+				.flatMap(List::stream)
+				.collect(ImmutableMultiset.toImmutableMultiset());
+	
+	public static Multiset<Card> defaultDeckMultiset() {
+		return defaultDeckMultiset;
+	}
+	
+	public static List<Card> defaultDeckList() {
+		return defaultDeckMultiset.asList();
 	}
 }
