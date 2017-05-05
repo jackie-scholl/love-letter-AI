@@ -17,7 +17,7 @@ public interface GameState3 {
 	
 	public Player whoseTurn();
 	public int turnNumber();
-	public boolean cardDrawn();
+	public boolean hasJustDrawn();
 	public int deckSize();
 
 
@@ -36,7 +36,7 @@ public interface GameState3 {
 	public Builder toBuilder();
 	class Builder extends GameState3_Builder {
 		public Builder() {
-			cardDrawn(false);
+			hasJustDrawn(false);
 			winner(Optional.empty());
 		}
 		
@@ -82,7 +82,7 @@ class GS3Helper {
 				.winner(state.winner)
 				.whoseTurn(state.whoseTurn)
 				.turnNumber(-1) // NOTE
-				.cardDrawn(false)
+				.hasJustDrawn(false)
 				.deckSize(-1)
 				.build();
 	}
