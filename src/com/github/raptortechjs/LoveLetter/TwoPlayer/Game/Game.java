@@ -13,6 +13,7 @@ public class Game {
 	private final ThinkingPlayer player2;
 
 	private final ImmutableSet<GameObserver> observers;
+	
 
 	public Game(ThinkingPlayer player1, ThinkingPlayer player2, GameObserver... observers) {
 		this.player1 = player1;
