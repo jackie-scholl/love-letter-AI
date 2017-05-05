@@ -58,7 +58,12 @@ public interface GameState3 {
 	default ImmutableMultiset<Card> getCombinedDiscard() { return GS3Helper.getCombinedDiscard(this); }
 	
 	default ImmutableMultiset<Card> remainingCards() { return GS3Helper.remainingCards(this); }
+	
+	public default boolean isValid(Action action, Card inHand, Card drawnCard) {
+		return GS3Helper.isValid(action, this, inHand, drawnCard);
+	}
 }
+
 
 
 class GS3Helper {
@@ -110,5 +115,24 @@ class GS3Helper {
 		}
 		//frequencyMap.
 		return frequencyMap.build();
+	}
+	
+	
+	static boolean isValid(Action action, GameState3 state, Card inHand, Card drawnCard) {
+		if (action == null || action.player != state.whoseTurn() || (action.card != drawnCard && action.card != inHand)) {
+			return false;
+		}
+		// If Countess is caught with King or Prince, discard Countess
+		if ((drawnCard == Card.COUNTESS || inHand == Card.COUNTESS) &&
+				((drawnCard == Card.KING || inHand == Card.KING) ||
+						(drawnCard == Card.PRINCE || inHand == Card.PRINCE))) {
+			return action.card == Card.COUNTESS;
+		}
+
+		if (action.targetPlayer.isPresent() && state.state(action.targetPlayer.get()).isProtected()) {
+			return false;
+		}
+		// TODO: Is there more to do here?
+		return true;
 	}
 }

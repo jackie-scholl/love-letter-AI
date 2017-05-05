@@ -8,7 +8,7 @@ import java.util.function.UnaryOperator;
 import com.google.common.collect.ImmutableSet;
 
 public class Game {
-	private GameState state;
+	private FullGameState3 state;
 	private final ThinkingPlayer player1;
 	private final ThinkingPlayer player2;
 
@@ -18,26 +18,21 @@ public class Game {
 	public Game(ThinkingPlayer player1, ThinkingPlayer player2, GameObserver... observers) {
 		this.player1 = player1;
 		this.player2 = player2;
-		state = GameState.createNewGame();
+		state = FullGameState3.createNewGame();
 		this.observers = ImmutableSet.of(observers[0]);
 	}
 
 	public void nextStep() {
-		if (state.hasAnyoneWon()) {
+		if (state.winner().isPresent()) {
 			return;
 		}
 
-		GameState3 initialState = GameState3.fromPublicGameState(state.getPublicState());
+		GameState3 initialState = state.getPublicState();
+		state = state.startTurn();
+		Action action = chooseAction(state);
+		state = state.endTurn(action);
 
-		state = endProtection(state);
-		Card drawnCard = drawCard();
-		Action action = chooseAction(drawnCard);
-		discardCard(drawnCard, action);
-		state = applyAction(action, state);
-		state = checkWin(state);
-		state = state.toBuilder().mapWhoseTurn(Player::other).mapTurnNumber(i -> i+1).build();
-
-		GameState3 currentState = GameState3.fromPublicGameState(state.getPublicState());
+		GameState3 currentState = state.getPublicState();
 
 		for (GameObserver o : observers) {
 			o.accept(action, initialState, currentState);
@@ -46,12 +41,12 @@ public class Game {
 	}
 
 	public void runThrough() {
-		while (!state.hasAnyoneWon()) {
+		while (!state.winner().isPresent()) {
 			nextStep();
 		}
 	}
 
-	private static GameState endProtection(GameState state) {
+	/*private static GameState endProtection(GameState state) {
 		return state.getWhoseTurn() == Player.ONE ?
 				state.toBuilder().setPlayer1Protected(false).build() :
 				state.toBuilder().setPlayer2Protected(false).build();
@@ -61,21 +56,21 @@ public class Game {
 		Card drawnCard = state.peekAtDeck();
 		state = state.withoutTopCard();
 		return drawnCard;
-	}
+	}*/
 
-	private Action chooseAction(Card drawnCard) {
-		ThinkingPlayer current = (state.getWhoseTurn() == Player.ONE ? player1 : player2);
-		Card currentPlayerHand = state.getPlayerState(state.getWhoseTurn()).hand;
+	private Action chooseAction(FullGameState3 state) {
+		ThinkingPlayer current = (state.whoseTurn() == Player.ONE ? player1 : player2);
+		Card currentPlayerHand = state.hand(state.whoseTurn());
 
-		Action action = current.chooseAction(state.getWhoseTurn(), state.getPublicState(), currentPlayerHand, drawnCard);
+		Action action = current.chooseAction(state.whoseTurn(), state.getPublicState().toPublicGameState(), currentPlayerHand, state.drawnCard().get());
 
-		if (!isValid(action, state.getPublicState(), currentPlayerHand, drawnCard)) {
+		/*if (!isValid(action, state.getPublicState(), currentPlayerHand, drawnCard)) {
 			throw new RuntimeException("Invalid action given");
-		}
+		}*/
 		return action;
 	}
 
-	private void discardCard(Card drawnCard, Action action) {
+	/*private void discardCard(Card drawnCard, Action action) {
 		UnaryOperator<PlayerState> mapper;
 		if (action.card == state.getPlayerState(state.getWhoseTurn()).hand) {
 			mapper = p -> p.replaceAndDiscardHand(drawnCard);
@@ -92,7 +87,7 @@ public class Game {
 		} else {
 			return state.toBuilder().mapPlayer2(mapper).build();
 		}
-	}
+	}*/
 
 	public static boolean isValid(Action action, PublicGameState state, Card inHand,
 			Card drawnCard) {
@@ -113,7 +108,7 @@ public class Game {
 		return true;
 	}
 
-	private static GameState applyAction(Action action, GameState state) {
+	/*private static GameState applyAction(Action action, GameState state) {
 		return applyActionHelper(action, state.toBuilder()).build();
 	}
 
@@ -165,5 +160,5 @@ public class Game {
 		} else {
 			return state;
 		}
-	}
+	}*/
 }

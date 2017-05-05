@@ -10,7 +10,8 @@ import com.github.raptortechjs.LoveLetter.TwoPlayer.Game.*;
 public class ConsolePlayer implements ThinkingPlayer {
 	public void accept(Action action, GameState3 oldState, GameState3 newState) {}
 
-	public Action chooseAction(Player us, PublicGameState state, Card inHand, Card justDrawn) {
+	public Action chooseAction(Player us, PublicGameState state2, Card inHand, Card justDrawn) {
+		GameState3 state = GameState3.fromPublicGameState(state2);
 		Action actionChoice;
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		do {
@@ -39,7 +40,7 @@ public class ConsolePlayer implements ThinkingPlayer {
 				System.out.println(e);
 				actionChoice = null;
 			}
-		} while (!Game.isValid(actionChoice, state, inHand, justDrawn));
+		} while (!Game.isValid(actionChoice, state2, inHand, justDrawn));
 		
 		return actionChoice;
 	}

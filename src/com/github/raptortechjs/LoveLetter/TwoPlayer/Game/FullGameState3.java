@@ -53,12 +53,15 @@ interface FullGameState3 extends GameState3 {
 	
 	public static FullGameState3 createNewGame() { return FGS3Helper.createNewGame(); }
 	
+	default public GameState3 getPublicState() { return (GameState3) this; }
 	
 	default public FullGameState3 startTurn() { return FGS3Helper.startTurn(this); }
 	
 	default public FullGameState3 endTurn(Action action) { return FGS3Helper.endTurn(this, action); }
 	
 }
+
+
 
 class FGS3Helper {
 	static GameState toGameState(FullGameState3 s) {
@@ -149,7 +152,7 @@ class FGS3Helper {
 	public static FullGameState3 endTurn(FullGameState3 state, Action action) {
 		Preconditions.checkArgument(state.hasJustDrawn());
 		
-		Preconditions.checkArgument(isValid(action, state, state.hand(state.whoseTurn()), state.drawnCard().get()));
+		Preconditions.checkArgument(isValid(state, action/*, state.hand(state.whoseTurn()), state.drawnCard().get()*/));
 		
 		FullGameState3.Builder builder = new FullGameState3.Builder();
 		
@@ -226,21 +229,7 @@ class FGS3Helper {
 		return builder.mapWhoseTurn(Player::other).mapTurnNumber(i -> i+1);
 	}
 	
-	public static boolean isValid(Action action, GameState3 state, Card inHand, Card drawnCard) {
-		if (action == null || action.player != state.whoseTurn() || (action.card != drawnCard && action.card != inHand)) {
-			return false;
-		}
-		// If Countess is caught with King or Prince, discard Countess
-		if ((drawnCard == Card.COUNTESS || inHand == Card.COUNTESS) &&
-				((drawnCard == Card.KING || inHand == Card.KING) ||
-						(drawnCard == Card.PRINCE || inHand == Card.PRINCE))) {
-			return action.card == Card.COUNTESS;
-		}
-
-		if (action.targetPlayer.isPresent() && state.state(action.targetPlayer.get()).isProtected()) {
-			return false;
-		}
-		// TODO: Is there more to do here?
-		return true;
+	private static boolean isValid(FullGameState3 state, Action action) {
+		return state.isValid(action, state.hand(action.player), state.drawnCard().get());
 	}
 }
