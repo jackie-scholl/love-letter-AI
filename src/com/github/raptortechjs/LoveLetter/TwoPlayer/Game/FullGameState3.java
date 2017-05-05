@@ -53,6 +53,11 @@ interface FullGameState3 extends GameState3 {
 	
 	public static FullGameState3 createNewGame() { return FGS3Helper.createNewGame(); }
 	
+	
+	default public FullGameState3 startTurn() { return FGS3Helper.startTurn(this); }
+	
+	default public FullGameState3 endTurn(Action action) { return FGS3Helper.endTurn(this, action); }
+	
 }
 
 class FGS3Helper {
@@ -141,7 +146,6 @@ class FGS3Helper {
 	}
 	
 	
-	
 	public static FullGameState3 endTurn(FullGameState3 state, Action action) {
 		Preconditions.checkArgument(state.hasJustDrawn());
 		
@@ -219,7 +223,7 @@ class FGS3Helper {
 	}
 	
 	private static FullGameState3.Builder incrementTurn(FullGameState3.Builder builder) {
-		return builder;
+		return builder.mapWhoseTurn(Player::other).mapTurnNumber(i -> i+1);
 	}
 	
 	public static boolean isValid(Action action, GameState3 state, Card inHand, Card drawnCard) {
