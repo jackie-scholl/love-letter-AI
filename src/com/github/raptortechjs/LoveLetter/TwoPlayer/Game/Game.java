@@ -8,7 +8,7 @@ import java.util.function.UnaryOperator;
 import com.google.common.collect.ImmutableSet;
 
 public class Game {
-	private GameState2 state;
+	private GameState state;
 	private final ThinkingPlayer player1;
 	private final ThinkingPlayer player2;
 
@@ -17,7 +17,7 @@ public class Game {
 	public Game(ThinkingPlayer player1, ThinkingPlayer player2, GameObserver... observers) {
 		this.player1 = player1;
 		this.player2 = player2;
-		state = GameState2.createNewGame();
+		state = GameState.createNewGame();
 		this.observers = ImmutableSet.of(observers[0]);
 	}
 
@@ -50,7 +50,7 @@ public class Game {
 		}
 	}
 
-	private static GameState2 endProtection(GameState2 state) {
+	private static GameState endProtection(GameState state) {
 		return state.getWhoseTurn() == PlayerNumber.PLAYER_1 ?
 				state.toBuilder().setPlayer1Protected(false).build() :
 				state.toBuilder().setPlayer2Protected(false).build();
@@ -84,7 +84,7 @@ public class Game {
 		state = mapPlayer(state, state.getWhoseTurn(), mapper);
 	}
 
-	private static GameState2 mapPlayer(GameState2 state, PlayerNumber whoseTurn, UnaryOperator<PlayerState> mapper) {
+	private static GameState mapPlayer(GameState state, PlayerNumber whoseTurn, UnaryOperator<PlayerState> mapper) {
 		// return .replacePlayer(playerNum, mapper.apply(this.getPlayerState(playerNum)));
 		if (whoseTurn == PlayerNumber.PLAYER_1) {
 			return state.toBuilder().mapPlayer1(mapper).build();
@@ -112,11 +112,11 @@ public class Game {
 		return true;
 	}
 
-	private static GameState2 applyAction(Action action, GameState2 state) {
+	private static GameState applyAction(Action action, GameState state) {
 		return applyActionHelper(action, state.toBuilder()).build();
 	}
 
-	private static GameState2.Builder applyActionHelper(Action action, GameState2.Builder state) {
+	private static GameState.Builder applyActionHelper(Action action, GameState.Builder state) {
 		//throw new UnsupportedOperationException(); // not implemented
 		switch (action.card) {
 		case PRINCESS: 	PlayerNumber other = action.player.other();
@@ -147,7 +147,7 @@ public class Game {
 		}
 	}
 
-	private GameState2 checkWin(GameState2 state) {
+	private GameState checkWin(GameState state) {
 		if (state.getDeck().size() == 0) { // "a round ends if the deck is empty at the end of a turn"
 			Comparator<PlayerNumber> comparator = Comparator.comparing(state::getPlayerState,
 
