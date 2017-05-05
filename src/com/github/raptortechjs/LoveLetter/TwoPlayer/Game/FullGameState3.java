@@ -10,8 +10,6 @@ import com.google.common.base.Preconditions;
 
 @FreeBuilder
 interface FullGameState3 extends GameState3 {
-	//public Card player1Hand();
-	//public Card player2Hand();
 	public ImmutableMap<Player, Card> hands();
 	public Optional<Card> drawnCard();
 	
@@ -103,8 +101,6 @@ class FGS3Helper {
 		// "Each player draws one card from the deck"
 		builder.putHands(Player.ONE, drawDeck.remove(drawDeck.size()-1));
 		builder.putHands(Player.TWO, drawDeck.remove(drawDeck.size()-1));
-		//builder.player2Hand(drawDeck.remove(drawDeck.size()-1));
-		//builder.setPlayer2(PlayerState.create(drawDeck.remove(drawDeck.size()-1)));
 		
 		builder.clearWinner(); // at the beginning of the game, nobody has won
 		
@@ -162,14 +158,8 @@ class FGS3Helper {
 	}
 	
 	private static FullGameState3.Builder discardCard(FullGameState3.Builder builder, Action action) {
-		//Card hand = (action.player == Player.ONE) ? builder.player1Hand() : builder.player2Hand();
 		if (action.card == builder.hands().get(action.player)) {
 			builder.mutateHands(m -> m.put(action.player, builder.drawnCard().get()));//(c -> builder.drawnCard().get());
-//			if (action.player == Player.ONE) {
-//				builder.mutateHands(m -> m.put(action.player, builder.drawnCard().get()));//(c -> builder.drawnCard().get());
-//			} else {
-//				builder.mapPlayer2Hand(c -> builder.drawnCard().get());
-//			}
 		}
 		
 		builder.mutatePlayers(m -> m.compute(builder.whoseTurn(),
@@ -189,7 +179,6 @@ class FGS3Helper {
 						return builder
 							.putHands(Player.ONE, builder.hands().get(Player.TWO))
 							.putHands(Player.TWO, temp);
-							//.player2Hand(temp);
 		case PRINCE:	return builder.winner(action.targetPlayer.get().other());
 		case HANDMAID:	return builder.mutatePlayers(m -> m.compute(action.targetPlayer.get(),
 							(p, s) -> s.toBuilder().isProtected(true).build()));
@@ -198,10 +187,7 @@ class FGS3Helper {
 								(result == 0) ? Optional.empty() :
 								Optional.of((result > 0) ? Player.ONE : Player.TWO));
 		case PRIEST:	return builder; // TODO I don't know how to handle this
-		case GUARD:		//Card hand = (action.targetPlayer.get() == Player.ONE) ?
-						//		builder.player1Hand() :
-						//		builder.player2Hand();
-						if (builder.hands().get(action.player) == action.targetCard.get()) {
+		case GUARD:		if (builder.hands().get(action.player) == action.targetCard.get()) {
 							return builder.winner(action.targetPlayer.get().other());
 						} else {
 							return builder;
@@ -223,29 +209,10 @@ class FGS3Helper {
 					
 					 // last resort, compare by player number
 					.thenComparing(Comparator.naturalOrder());
-					
-					//Comparator.comparing(p -> builder.players().get(p),
-
-					// "player with highest ranked person wins the round"
-							//Comparator.<PlayerState3, Card> comparing(s -> s.hand)
-
-					// "In case of a tie, the player who discarded the highest total value of cards wins"
-							//		.thenComparing(s -> s.discardPile().stream().mapToInt(c -> c.value).sum()))
-							//.thenComparing(Comparator.naturalOrder()); // last resort, compare by player number
-			/*Comparator<Player> comparator = Comparator.comparing(p -> builder.players().get(p),
-
-			// "player with highest ranked person wins the round"
-					Comparator.<PlayerState3, Card> comparing(s -> s.hand)
-
-			// "In case of a tie, the player who discarded the highest total value of cards wins"
-							.thenComparing(s -> s.discardPile().stream().mapToInt(c -> c.value).sum()))
-					.thenComparing(Comparator.naturalOrder()); // last resort, compare by player number*/
 
 			Optional<Player> winner = Arrays.stream(Player.values()).max(comparator);
 			builder.winner(winner);
 			return builder;
-			//state = state.toBuilder().setWinner(winner).build();
-			//return state;
 		} else {
 			return builder;
 		}
