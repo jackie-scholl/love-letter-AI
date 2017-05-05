@@ -9,13 +9,13 @@ import com.google.common.collect.ImmutableMap;
 
 @FreeBuilder
 public interface GameState3 {
-	public ImmutableMap<Players, PlayerState3> players();
+	public ImmutableMap<Player, PlayerState3> players();
 	
 	public ImmutableList<Card> visibleDiscard();
 	
-	public Optional<Players> winner();
+	public Optional<Player> winner();
 	
-	public Players whoseTurn();
+	public Player whoseTurn();
 	public int turnNumber();
 
 	public Builder toBuilder();

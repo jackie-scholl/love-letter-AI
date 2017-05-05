@@ -3,23 +3,23 @@ package com.github.raptortechjs.LoveLetter.TwoPlayer.Game;
 import java.util.Optional;
 
 public class Action {
-	public final Players player;
+	public final Player player;
 	public final Card card;
-	public final Optional<Players> targetPlayer;
+	public final Optional<Player> targetPlayer;
 	public final Optional<Card> targetCard;
 	
-	public Action(Players player, Card card, Optional<Players> targetPlayer, Optional<Card> targetCard) {
+	public Action(Player player, Card card, Optional<Player> targetPlayer, Optional<Card> targetCard) {
 		this.player = player;
 		this.card = card;
 		this.targetPlayer = targetPlayer;
 		this.targetCard = targetCard;
 	}
 	
-	public Action(Players player, Card card, Optional<Players> targetPlayer) {
+	public Action(Player player, Card card, Optional<Player> targetPlayer) {
 		this(player, card, targetPlayer, Optional.empty());
 	}
 	
-	public Action(Players player, Card card) {
+	public Action(Player player, Card card) {
 		this(player, card, Optional.empty(), Optional.empty());
 	}
 	

@@ -1,16 +1,16 @@
 package com.github.raptortechjs.LoveLetter.TwoPlayer.Game;
 
-public enum Players {
+public enum Player {
 	ONE ("Player 1"),
 	TWO ("Player 2");
 	
 	String humanName;
 
-	private Players(String humanName) {
+	private Player(String humanName) {
 		this.humanName = humanName;
 	}
 	
-	public Players other() {
+	public Player other() {
 		return (this == ONE? TWO : ONE);
 	}
 	
