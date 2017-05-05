@@ -10,7 +10,7 @@ import com.github.raptortechjs.LoveLetter.TwoPlayer.Game.*;
 public class ConsolePlayer implements ThinkingPlayer {
 	public void accept(Action action, PublicGameState oldState, PublicGameState newState) {}
 
-	public Action chooseAction(PlayerNumber us, PublicGameState state, Card inHand, Card justDrawn) {
+	public Action chooseAction(Players us, PublicGameState state, Card inHand, Card justDrawn) {
 		Action actionChoice;
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		do {
@@ -25,7 +25,7 @@ public class ConsolePlayer implements ThinkingPlayer {
 					actionChoice = null;
 					continue;
 				}
-				Optional<PlayerNumber> targetPlayer = Optional.empty();
+				Optional<Players> targetPlayer = Optional.empty();
 				if (array.length > 1) {
 					targetPlayer = Optional.of(getTargetPlayer(array[1], us));
 					//targetPlayer = Optional.of(PlayerNumber.valueOf(array[1]));
@@ -44,13 +44,13 @@ public class ConsolePlayer implements ThinkingPlayer {
 		return actionChoice;
 	}
 	
-	private static PlayerNumber getTargetPlayer(String input, PlayerNumber us) {
+	private static Players getTargetPlayer(String input, Players us) {
 		if (input.equals("1")) {
-			return PlayerNumber.PLAYER_1;
+			return Players.ONE;
 		}
 		
 		if (input.equals("2")) {
-			return PlayerNumber.PLAYER_2;
+			return Players.TWO;
 		}
 		
 		if (input.equals("US") || input.equals("ME")) {
@@ -61,7 +61,7 @@ public class ConsolePlayer implements ThinkingPlayer {
 		}
 		
 		try {
-			return PlayerNumber.valueOf(input);
+			return Players.valueOf(input);
 		} catch (IllegalArgumentException e) {}
 		
 		throw new IllegalArgumentException();

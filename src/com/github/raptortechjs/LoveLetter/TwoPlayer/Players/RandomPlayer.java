@@ -12,7 +12,7 @@ public class RandomPlayer implements ThinkingPlayer {
 	public void accept(Action action, PublicGameState oldState, PublicGameState newState) {}
 
 	@Override
-	public Action chooseAction(PlayerNumber us, PublicGameState state, Card inHand, Card justDrawn) {
+	public Action chooseAction(Players us, PublicGameState state, Card inHand, Card justDrawn) {
 		// TODO Auto-generated method stub
 		//return null;
 		Action action;
@@ -23,7 +23,7 @@ public class RandomPlayer implements ThinkingPlayer {
 			Card choice = r.nextBoolean() ? inHand : justDrawn;
 			
 			//PlayerNumber targetPlayer = r.nextBoolean() ? PlayerNumber.PLAYER_1 : PlayerNumber.PLAYER_2;
-			PlayerNumber targetPlayer = state.isPlayerProtected(us.other()) ? us : us.other();
+			Players targetPlayer = state.isPlayerProtected(us.other()) ? us : us.other();
 			
 			Card targetCard = Card.PRINCESS;
 			//Card targetCard = Card.values()[r.nextInt(8)];

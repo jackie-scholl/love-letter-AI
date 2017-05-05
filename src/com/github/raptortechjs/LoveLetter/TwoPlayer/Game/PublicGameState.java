@@ -11,15 +11,15 @@ public class PublicGameState {
 	public final boolean isPlayer2Protected;
 	
 	public final ImmutableList<Card> visibleDiscard;
-	public final Optional<PlayerNumber> winner;
+	public final Optional<Players> winner;
 	
-	public final PlayerNumber whoseTurn;
+	public final Players whoseTurn;
 	
 	public final int deckSize;
 
 	public PublicGameState(ImmutableList<Card> player1Discard, ImmutableList<Card> player2Discard,
 			boolean isPlayer1Protected, boolean isPlayer2Protected, 
-			ImmutableList<Card> visibleDiscard, Optional<PlayerNumber> winner, PlayerNumber whoseTurn, int deckSize) {
+			ImmutableList<Card> visibleDiscard, Optional<Players> winner, Players whoseTurn, int deckSize) {
 		this.player1Discard = player1Discard;
 		this.player2Discard = player2Discard;
 		this.isPlayer1Protected = isPlayer1Protected;
@@ -30,7 +30,7 @@ public class PublicGameState {
 		this.deckSize = deckSize;
 	}
 	
-	public boolean isPlayerProtected(PlayerNumber playerNum) {
-		return (playerNum == PlayerNumber.PLAYER_1) ? isPlayer1Protected : isPlayer2Protected;
+	public boolean isPlayerProtected(Players playerNum) {
+		return (playerNum == Players.ONE) ? isPlayer1Protected : isPlayer2Protected;
 	}
 }

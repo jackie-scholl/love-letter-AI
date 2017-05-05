@@ -14,15 +14,15 @@ public interface GameState {
 	PlayerState getPlayer1();
 	PlayerState getPlayer2();
 	
-	default public PlayerState getPlayerState(PlayerNumber playerNum) {
-		return (playerNum == PlayerNumber.PLAYER_1) ? getPlayer1() : getPlayer2();
+	default public PlayerState getPlayerState(Players playerNum) {
+		return (playerNum == Players.ONE) ? getPlayer1() : getPlayer2();
 	}
 	
 	boolean isPlayer1Protected();
 	boolean isPlayer2Protected();
 	
-	default public boolean isPlayerProtected(PlayerNumber playerNum) {
-		return (playerNum == PlayerNumber.PLAYER_1) ? isPlayer1Protected() : isPlayer2Protected();
+	default public boolean isPlayerProtected(Players playerNum) {
+		return (playerNum == Players.ONE) ? isPlayer1Protected() : isPlayer2Protected();
 	}
 
 	ImmutableList<Card> getDeck();
@@ -39,13 +39,13 @@ public interface GameState {
 	
 	Card getSetAside();
 	
-	Optional<PlayerNumber> getWinner();
+	Optional<Players> getWinner();
 	
 	default public boolean hasAnyoneWon() {
 		return getWinner().isPresent();
 	}
 	
-	PlayerNumber getWhoseTurn();
+	Players getWhoseTurn();
 	int getTurnNumber();
 	
 	
@@ -89,7 +89,7 @@ public interface GameState {
 		
 		builder.clearWinner(); //Optional.empty(); // at the beginning of the game, nobody has won
 		
-		builder.setWhoseTurn(PlayerNumber.PLAYER_1);
+		builder.setWhoseTurn(Players.ONE);
 		//builder.setNumberOfTurns(0);
 		builder.setTurnNumber(0);
 		

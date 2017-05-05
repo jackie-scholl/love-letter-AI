@@ -41,7 +41,7 @@ public class Game {
 			o.accept(action, initialState, currentState);
 		}
 
-		state = state.toBuilder().mapWhoseTurn(PlayerNumber::other).mapTurnNumber(i -> i+1).build();
+		state = state.toBuilder().mapWhoseTurn(Players::other).mapTurnNumber(i -> i+1).build();
 	}
 
 	public void runThrough() {
@@ -51,7 +51,7 @@ public class Game {
 	}
 
 	private static GameState endProtection(GameState state) {
-		return state.getWhoseTurn() == PlayerNumber.PLAYER_1 ?
+		return state.getWhoseTurn() == Players.ONE ?
 				state.toBuilder().setPlayer1Protected(false).build() :
 				state.toBuilder().setPlayer2Protected(false).build();
 	}
@@ -63,7 +63,7 @@ public class Game {
 	}
 
 	private Action chooseAction(Card drawnCard) {
-		ThinkingPlayer current = (state.getWhoseTurn() == PlayerNumber.PLAYER_1 ? player1 : player2);
+		ThinkingPlayer current = (state.getWhoseTurn() == Players.ONE ? player1 : player2);
 		Card currentPlayerHand = state.getPlayerState(state.getWhoseTurn()).hand;
 
 		Action action = current.chooseAction(state.getWhoseTurn(), state.getPublicState(), currentPlayerHand, drawnCard);
@@ -84,9 +84,9 @@ public class Game {
 		state = mapPlayer(state, state.getWhoseTurn(), mapper);
 	}
 
-	private static GameState mapPlayer(GameState state, PlayerNumber whoseTurn, UnaryOperator<PlayerState> mapper) {
+	private static GameState mapPlayer(GameState state, Players whoseTurn, UnaryOperator<PlayerState> mapper) {
 		// return .replacePlayer(playerNum, mapper.apply(this.getPlayerState(playerNum)));
-		if (whoseTurn == PlayerNumber.PLAYER_1) {
+		if (whoseTurn == Players.ONE) {
 			return state.toBuilder().mapPlayer1(mapper).build();
 		} else {
 			return state.toBuilder().mapPlayer2(mapper).build();
@@ -119,7 +119,7 @@ public class Game {
 	private static GameState.Builder applyActionHelper(Action action, GameState.Builder state) {
 		//throw new UnsupportedOperationException(); // not implemented
 		switch (action.card) {
-		case PRINCESS: 	PlayerNumber other = action.player.other();
+		case PRINCESS: 	Players other = action.player.other();
 						return state.setWinner(other);
 		case COUNTESS:	return state;
 		case KING:		Card temp = state.getPlayer1().hand;
@@ -127,16 +127,16 @@ public class Game {
 							.mapPlayer1(p -> p.replaceHand(state.getPlayer2().hand))
 							.mapPlayer2(p -> p.replaceHand(temp));
 		case PRINCE:	return state.setWinner(action.targetPlayer.get().other());
-		case HANDMAID:	return (action.player == PlayerNumber.PLAYER_1) ? 
+		case HANDMAID:	return (action.player == Players.ONE) ? 
 							state.setPlayer1Protected(true) :
 							state.setPlayer2Protected(true);
-		case BARON:		int result = Comparator.<PlayerNumber, Card>comparing(p -> state.build().getPlayerState(p).hand)
-								.compare(PlayerNumber.PLAYER_1, PlayerNumber.PLAYER_2);
+		case BARON:		int result = Comparator.<Players, Card>comparing(p -> state.build().getPlayerState(p).hand)
+								.compare(Players.ONE, Players.TWO);
 						
 						if (result > 0) {
-							return state.setWinner(PlayerNumber.PLAYER_1);
+							return state.setWinner(Players.ONE);
 						} else if (result < 0) {
-							return state.setWinner(PlayerNumber.PLAYER_2);
+							return state.setWinner(Players.TWO);
 						} else {
 							return state;
 						}
@@ -149,7 +149,7 @@ public class Game {
 
 	private GameState checkWin(GameState state) {
 		if (state.getDeck().size() == 0) { // "a round ends if the deck is empty at the end of a turn"
-			Comparator<PlayerNumber> comparator = Comparator.comparing(state::getPlayerState,
+			Comparator<Players> comparator = Comparator.comparing(state::getPlayerState,
 
 			// "player with highest ranked person wins the round"
 					Comparator.<PlayerState, Card> comparing(s -> s.hand)
@@ -158,7 +158,7 @@ public class Game {
 							.thenComparing(s -> s.discardPile.stream().mapToInt(c -> c.value).sum()))
 					.thenComparing(Comparator.naturalOrder()); // last resort, compare by player number
 
-			Optional<PlayerNumber> winner = Arrays.stream(PlayerNumber.values()).max(comparator);
+			Optional<Players> winner = Arrays.stream(Players.values()).max(comparator);
 			state = state.toBuilder().setWinner(winner).build();
 			return state;
 		} else {
