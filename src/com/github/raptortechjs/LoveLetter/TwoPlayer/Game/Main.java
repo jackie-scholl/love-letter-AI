@@ -1,19 +1,39 @@
 package com.github.raptortechjs.LoveLetter.TwoPlayer.Game;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-import com.github.raptortechjs.LoveLetter.TwoPlayer.Players.ConsoleLogger;
-import com.github.raptortechjs.LoveLetter.TwoPlayer.Players.ConsolePlayer;
-import com.github.raptortechjs.LoveLetter.TwoPlayer.Players.HashingLogger;
-import com.github.raptortechjs.LoveLetter.TwoPlayer.Players.RandomPlayer;
+import com.github.raptortechjs.LoveLetter.TwoPlayer.Players.*;
 
 public class Main {
 	
 	public static void main(String[] args) {
 		System.out.println("hello world");
 		
-		Set<String> hashes = new HashSet<>();
+		Game g = new Game(new ConsolePlayer(), new ConsolePlayer(), new ConsoleLogger());
+		//g.runThrough();
+		
+		for (int i=0; i<100; i++) {
+			long start = System.currentTimeMillis();
+			
+			List<Double> scores = new ArrayList<>();
+			
+			for (int j=0; j < 1000; j++) {
+				FullGameState3 s = FullGameState3.createNewGame();
+				//System.out.println(s.deckSize());
+				double score = Expectiminimaxer.score(s, /*i*/4);
+				scores.add(score);
+			}
+			double average = scores.stream().mapToDouble(x -> x).average().getAsDouble();
+			long end = System.currentTimeMillis();
+			double diff = (end-start)/1000.0;
+			System.out.printf("%d: %.2f; %.3f seconds%n", i, average, diff);
+		}
+		
+		
+		/*Set<String> hashes = new HashSet<>();
 		
 		long start = System.currentTimeMillis();
 		int lastHashesSize = 0;
@@ -26,7 +46,7 @@ public class Main {
 				//System.out.println(hashes.size());
 			}
 			hashes.add(getHash());
-		}
+		}*/
 		
 		//GameState2 state = new GameState2.Builder().build();
 	}

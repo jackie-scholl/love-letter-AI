@@ -4,17 +4,29 @@ import java.util.*;
 
 import org.inferred.freebuilder.FreeBuilder;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.*;
 
 @FreeBuilder
-interface FullGameState3 extends GameState3 {
+public interface FullGameState3 extends GameState3 {
 	public ImmutableMap<Player, Card> hands();
 	public Optional<Card> drawnCard();
 	
-	public Card initialSetAside();
-	public ImmutableList<Card> deck();
+	//public Card initialSetAside();
+	//public ImmutableList<Card> deck();
+	//public ImmutableMultiset<Card> deck();
+	public Optional<Multiset<Card>> optionalDeck();
+	
+	default public Multiset<Card> deck() {
+		return optionalDeck().get();
+	}
+	/*public Optional<Multiset<Card>> optionalInverseDeck();
+	
+	default public Multiset<Card> deck() {
+		Multiset<Card> temp = HashMultiset.<Card>create(Card.defaultDeckMultiset());
+		Multisets.removeOccurrences(temp, optionalInverseDeck().get());
+		return Multisets.unmodifiableMultiset(temp);
+	}*/
 	
 	default public Card hand(Player player) {
 		return hands().get(player);
@@ -28,100 +40,156 @@ interface FullGameState3 extends GameState3 {
 		return hand(Player.TWO);
 	}
 	
+	default public GameState3.Builder toBuilder() {
+		return new GameState3.Builder().mergeFrom(this);
+	}
 	
+	default public Builder toFullBuilder() {
+		return new Builder().mergeFrom(this);
+	}
 	
-	public Builder toFullBuilder();
 	class Builder extends FullGameState3_Builder {
 		public Builder() {
 			drawnCard(Optional.empty());
+			optionalDeck(Card.defaultDeckMultiset());
+			//optionalInverseDeck(ImmutableMultiset.of());
+			//this.dec
+		}
+		
+		/*public ImmutableMultiset<Card> deck() {
+			return optionalDeck().get();
+		}*/
+		
+		//public 
+		
+		public Multiset<Card> deck() {
+			return optionalDeck().get();
+			/*Multiset<Card> temp = HashMultiset.<Card>create(Card.defaultDeckMultiset());
+			Multisets.removeOccurrences(temp, optionalInverseDeck().get());
+			return Multisets.unmodifiableMultiset(temp);*/
 		}
 		
 		@Override
 		public FullGameState3 build() {
-			deckSize(deck().size());
+			//deckSize(deck().size() - 1);
+			//deckSize(optionalDeck().get().size() - 1);
+			deckSize(deck().size() - 1);
+			
 			hasJustDrawn(drawnCard().isPresent());
 			FullGameState3 state = super.build();
 			//Preconditions.checkState(state.deckSize() == state.deck().size());
 			//Preconditions.checkState(state.cardDrawn() == state.justDrawn().isPresent());
 			return state;
 		}
+		
+		public Card getRandomFromDeck() {
+			//List<Card> l = new ArrayList<>(optionalDeck().get());
+			List<Card> l = new ArrayList<>(deck());
+			int index = (new Random()).nextInt(l.size());
+			return l.get(index);
+		}
+		
+		/*public FullGameState3.Builder addAllDeck(ImmutableMultiset<Card> elements) {
+			Preconditions.checkNotNull(elements);
+			System.out.println("hello");
+			this.mutateDeck(ms -> ms.addAll(elements));
+			//return addAllDeck(elements.spliterator());
+			return this;
+		  }*/
+		
+		public FullGameState3.Builder removeCard(Card cardToRemove) {
+			/*return this.mutateDeck(ms -> {
+				ms.remove(cardToRemove);
+			});*/
+			return this.mapOptionalDeck(optDeck -> {
+				Multiset<Card> ms = HashMultiset.create(optDeck);
+				boolean b = ms.remove(cardToRemove);
+				//System.out.println(b);
+				return Multisets.unmodifiableMultiset(ms);
+				//return ImmutableMultiset.copyOf(ms);
+				}
+			);
+			/*return this.mapOptionalInverseDeck(invDeck -> {
+				Multiset<Card> ms = HashMultiset.create(invDeck);
+				ms.add(cardToRemove);
+				//boolean b = ms.remove(cardToRemove);
+				//System.out.println(b);
+				return ImmutableMultiset.copyOf(ms);
+				}
+			);*/
+		}
 	}
 	
-	default public GameState toGameState() {
-		return FGS3Helper.toGameState(this);
-	}
 	
 	public static FullGameState3 createNewGame() { return FGS3Helper.createNewGame(); }
 	
-	default public GameState3 getPublicState() { return (GameState3) this; }
+	default public GameState3 getPublicState() { return toBuilder().build(); }
 	
 	default public FullGameState3 startTurn() { return FGS3Helper.startTurn(this); }
 	
-	default public FullGameState3 endTurn(Action action) { return FGS3Helper.endTurn(this, action); }
+	default public FullGameState3 startTurn(Card drawnCard) { return FGS3Helper.startTurn(this, drawnCard); }
 	
+	default public FullGameState3 endTurn(Action action) { return FGS3Helper.endTurn(this, action); }
 }
 
 
 
 class FGS3Helper {
-	static GameState toGameState(FullGameState3 s) {
-		GameState.Builder b = new GameState.Builder();
-
-		b.setPlayer1(s.state(Player.ONE).toPlayerState(s.player1Hand()));
-		b.setPlayer1Protected(s.state(Player.ONE).isProtected());
-		
-		b.setPlayer2(s.state(Player.ONE).toPlayerState(s.player1Hand()));
-		b.setPlayer2Protected(s.state(Player.TWO).isProtected());
-		
-		
-		b.addAllDeck(s.deck());
-		b.addAllVisibleDiscard(s.visibleDiscard());
-		
-		b.setSetAside(s.initialSetAside());
-		b.setWinner(s.winner());
-		
-		b.setWhoseTurn(s.whoseTurn());
-		b.setTurnNumber(s.turnNumber());
-		
-		return b.build();
-	}
-	
 	public static FullGameState3 createNewGame() {
 		// following rules from "Setup"
 		
 		FullGameState3.Builder builder = new FullGameState3.Builder();
 
-		List<Card> drawDeck = new ArrayList<>(Card.defaultDeckList());
-		shuffle(drawDeck); // "shuffle the 16 cards"
-
-		builder.initialSetAside(drawDeck.remove(drawDeck.size()-1)); // "remove the top card of deck" (and keep it for later)
-
-		List<Card> subList = drawDeck.subList(drawDeck.size()-3, drawDeck.size()); // "in two-player games, take 3 more cards from the deck"
-		builder.addAllVisibleDiscard(ImmutableList.copyOf(subList)); // "and place them to the side, face up"
-		subList.clear(); // actually remove the cards from the draw deck
+		//List<Card> drawDeck = new ArrayList<>(Card.defaultDeckList());
+		//shuffle(drawDeck); // "shuffle the 16 cards"
 		
-		builder.addAllDeck(drawDeck);
+		//System.out.println(drawDeck);
+
+		//builder.initialSetAside(drawDeck.remove(drawDeck.size()-1)); // "remove the top card of deck" (and keep it for later)
+
+		//List<Card> subList = drawDeck.subList(drawDeck.size()-3, drawDeck.size()); // "in two-player games, take 3 more cards from the deck"
+		//builder.addAllVisibleDiscard(ImmutableList.copyOf(subList)); // "and place them to the side, face up"
+		//subList.clear(); // actually remove the cards from the draw deck
+		for (int i=0; i<3; i++) {
+			Card c = builder.getRandomFromDeck();
+			builder.addVisibleDiscard(c);
+			builder.removeCard(c);
+		}
 		
+		//builder.addAllDeck(drawDeck);
+		//builder.optionalDeck(ImmutableMultiset.copyOf(drawDeck));
+		//builder.removeCard(cardToRemove)
+		/*for (Card c : subList) {
+			builder.removeCard(c);
+		}
+		subList.clear();*/
 
 		builder.putPlayers(Player.ONE, PlayerState3.defaultPlayerState());
 		builder.putPlayers(Player.TWO, PlayerState3.defaultPlayerState());
+		
+		for (Player p : Player.values()) {
+			Card c = builder.getRandomFromDeck();
+			builder.putHands(p, c);
+			builder.removeCard(c);
+		}
+		
 
 		// "Each player draws one card from the deck"
-		builder.putHands(Player.ONE, drawDeck.remove(drawDeck.size()-1));
-		builder.putHands(Player.TWO, drawDeck.remove(drawDeck.size()-1));
+		//builder.putHands(Player.ONE, drawDeck.remove(drawDeck.size()-1));
+		//builder.putHands(Player.TWO, drawDeck.remove(drawDeck.size()-1));
+		
+		//builder.putHands(Player.ONE, drawDeck.remove(drawDeck.size()-1));
+		//builder.putHands(Player.TWO, drawDeck.remove(drawDeck.size()-1));
 		
 		builder.clearWinner(); // at the beginning of the game, nobody has won
 		
 		builder.whoseTurn(Player.ONE);
 		builder.turnNumber(0);
 
-		return builder.build();
+		FullGameState3 state = builder.build();
+		//System.out.println(state.deckSize());
+		return state;
 	}
-	
-	private static void shuffle(List<Card> deck) {
-		Collections.shuffle(deck);
-	}
-	
 	
 	public static FullGameState3 startTurn(FullGameState3 state) {
 		Preconditions.checkArgument(!state.hasJustDrawn());
@@ -129,6 +197,16 @@ class FGS3Helper {
 		FullGameState3.Builder builder = state.toFullBuilder();
 		endProtection(builder);
 		drawCard(builder);
+		
+		return builder.build();
+	}
+	
+	public static FullGameState3 startTurn(FullGameState3 state, Card chosenCard) {
+		Preconditions.checkArgument(!state.hasJustDrawn());
+		
+		FullGameState3.Builder builder = state.toFullBuilder();
+		endProtection(builder);
+		drawCard(builder, chosenCard);
 		
 		return builder.build();
 	}
@@ -142,9 +220,38 @@ class FGS3Helper {
 	}
 	
 	private static FullGameState3.Builder drawCard(FullGameState3.Builder builder) {
-		Card drawnCard = builder.deck().get(builder.deck().size() - 1);
+		Preconditions.checkArgument(builder.deckSize() > 0);
+		//Card drawnCard = builder.deck().get(builder.deck().size() - 1);
+		
+		Card drawnCard = builder.getRandomFromDeck();
 		builder.drawnCard(drawnCard);
-		builder.mutateDeck(l -> l.remove(builder.deck().size() - 1));
+		//builder.mutateDeck(l -> l.remove(builder.deck().size() - 1));
+		//builder.mutateDeck(ms -> {boolean b = ms.remove(drawnCard); System.out.println(b);});
+		/*builder.mapOptionalDeck(optDeck -> {
+			Multiset<Card> ms = HashMultiset.create(optDeck);
+			boolean b = ms.remove(drawnCard);
+			System.out.println(b);
+			return ImmutableMultiset.copyOf(ms);
+			}
+		);*/
+		builder.removeCard(drawnCard);
+		return builder;
+	}
+	
+	private static FullGameState3.Builder drawCard(FullGameState3.Builder builder, Card drawnCard) {
+		//Card drawnCard = builder.deck().get(builder.deck().size() - 1);
+		builder.drawnCard(drawnCard);
+		//System.out.println(x);
+		//builder.mutateDeck(l -> l.remove(l.indexOf(drawnCard)));
+		//builder.mutateDeck(ms -> {boolean b = ms.remove(drawnCard); /*System.out.println(b);*/});
+		/*builder.mapOptionalDeck(optDeck -> {
+			Multiset<Card> ms = HashMultiset.create(optDeck);
+			boolean b = ms.remove(drawnCard);
+			//System.out.println(b);
+			return ImmutableMultiset.copyOf(ms);
+			}
+		);*/
+		builder.removeCard(drawnCard);
 		return builder;
 	}
 	
@@ -154,7 +261,7 @@ class FGS3Helper {
 		
 		Preconditions.checkArgument(isValid(state, action/*, state.hand(state.whoseTurn()), state.drawnCard().get()*/));
 		
-		FullGameState3.Builder builder = new FullGameState3.Builder();
+		FullGameState3.Builder builder = state.toFullBuilder();
 		
 		discardCard(builder, action);
 		applyAction(builder, action);
@@ -172,6 +279,8 @@ class FGS3Helper {
 		builder.mutatePlayers(m -> m.compute(builder.whoseTurn(),
 				(p, s) -> s.toBuilder().addDiscardPile(action.card).build()));
 		
+		builder.drawnCard(Optional.empty());
+		
 		return builder;
 	}
 	
@@ -186,15 +295,33 @@ class FGS3Helper {
 						return builder
 							.putHands(Player.ONE, builder.hands().get(Player.TWO))
 							.putHands(Player.TWO, temp);
-		case PRINCE:	return builder.winner(action.targetPlayer.get().other());
-		case HANDMAID:	return builder.mutatePlayers(m -> m.compute(action.targetPlayer.get(),
+		case PRINCE:	Card drawn;
+						//if (builder.deckSize() > 0) {
+						drawn = builder.getRandomFromDeck();
+						//builder.mutateDeck(ms -> ms.remove(drawn));
+						builder.removeCard(drawn);
+						//} else {
+						//	drawn = builder.initialSetAside();
+						//}
+						Card inHand = builder.hands().get(action.targetPlayer.get());
+						builder.mutatePlayers(m -> m.compute(action.targetPlayer.get(),
+								(p, s) -> s.toBuilder().addDiscardPile(inHand).build()));
+						if (inHand == Card.PRINCESS) {
+							builder.winner(action.targetPlayer.map(Player::other));
+						} else {
+							builder.mutateHands(m -> m.put(action.targetPlayer.get(), drawn));
+						}
+		case HANDMAID:	return builder.mutatePlayers(m -> m.compute(action.player,
 							(p, s) -> s.toBuilder().isProtected(true).build()));
 		case BARON:		int result = builder.hands().get(Player.ONE).compareTo(builder.hands().get(Player.TWO));
+						//System.out.println("baron: " + result);
 						return builder.winner(
 								(result == 0) ? Optional.empty() :
 								Optional.of((result > 0) ? Player.ONE : Player.TWO));
-		case PRIEST:	return builder; // TODO I don't know how to handle this
-		case GUARD:		if (builder.hands().get(action.player) == action.targetCard.get()) {
+		case PRIEST:	//System.out.printf("Result of Priest: %s has %s%n",
+						//		action.targetPlayer.get(), builder.hands().get(action.targetPlayer.get()));
+						return builder; // TODO I don't know how to handle this
+		case GUARD:		if (builder.hands().get(action.targetPlayer.get()) == action.targetCard.get()) {
 							return builder.winner(action.targetPlayer.get().other());
 						} else {
 							return builder;

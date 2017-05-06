@@ -19,6 +19,7 @@ public class Game {
 		this.player1 = player1;
 		this.player2 = player2;
 		state = FullGameState3.createNewGame();
+		//System.out.println(state);
 		this.observers = ImmutableSet.of(observers[0]);
 	}
 
@@ -50,6 +51,7 @@ public class Game {
 		ThinkingPlayer current = (state.whoseTurn() == Player.ONE ? player1 : player2);
 		Card currentPlayerHand = state.hand(state.whoseTurn());
 
+		System.out.println(state);
 		Action action = current.chooseAction(state.whoseTurn(), state.getPublicState(), 
 				currentPlayerHand, state.drawnCard().get());
 		return action;

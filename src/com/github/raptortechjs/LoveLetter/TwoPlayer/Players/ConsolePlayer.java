@@ -23,6 +23,9 @@ public class ConsolePlayer implements ThinkingPlayer {
 				System.out.println(e);
 				actionChoice = null;
 			}
+			if (!state.isValid(actionChoice, inHand, justDrawn)) {
+				System.out.println("not valid");
+			}
 		} while (!state.isValid(actionChoice, inHand, justDrawn));
 		
 		return actionChoice;
