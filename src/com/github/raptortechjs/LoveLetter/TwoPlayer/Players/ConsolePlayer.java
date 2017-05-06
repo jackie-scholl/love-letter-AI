@@ -6,16 +6,20 @@ import java.io.InputStreamReader;
 import java.util.Optional;
 
 import com.github.raptortechjs.LoveLetter.TwoPlayer.Game.*;
+import com.google.common.collect.SortedMultiset;
+import com.google.common.collect.TreeMultiset;
 
 public class ConsolePlayer implements ThinkingPlayer {
 	public void accept(Action action, GameState3 oldState, GameState3 newState) {}
 
-	public Action chooseAction(Player us, GameState3 state, Card inHand, Card justDrawn) {
+	public Action chooseAction(Player us, FullGameState3 state, Card inHand, Card justDrawn) {
 		//GameState3 state = GameState3.fromPublicGameState(state2);
 		Action actionChoice;
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		do {
 			try {
+				SortedMultiset<Card> remaining = TreeMultiset.create(state.remainingCards());
+				System.out.printf("Remaining cards: %s%n", remaining);
 				System.out.printf("You are %s, and have %s and %s. Which do you choose?%n", us, inHand, justDrawn);
 				String result = br.readLine();
 				actionChoice = getAction(result, us);

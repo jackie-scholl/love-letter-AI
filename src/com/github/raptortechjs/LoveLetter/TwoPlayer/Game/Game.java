@@ -52,7 +52,7 @@ public class Game {
 		Card currentPlayerHand = state.hand(state.whoseTurn());
 
 		System.out.println(state);
-		Action action = current.chooseAction(state.whoseTurn(), state.getPublicState(), 
+		Action action = current.chooseAction(state.whoseTurn(), state/*.getPublicState()*/, 
 				currentPlayerHand, state.drawnCard().get());
 		return action;
 	}

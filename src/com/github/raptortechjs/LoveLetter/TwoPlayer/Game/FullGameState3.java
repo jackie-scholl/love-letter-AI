@@ -188,6 +188,7 @@ class FGS3Helper {
 
 		FullGameState3 state = builder.build();
 		//System.out.println(state.deckSize());
+		//state.hash
 		return state;
 	}
 	
@@ -311,13 +312,14 @@ class FGS3Helper {
 						} else {
 							builder.mutateHands(m -> m.put(action.targetPlayer.get(), drawn));
 						}
-		case HANDMAID:	return builder.mutatePlayers(m -> m.compute(action.player,
+		case HANDMAID:	//System.out.println("Handmaiding " + action.player);
+						return builder.mutatePlayers(m -> m.compute(action.player,
 							(p, s) -> s.toBuilder().isProtected(true).build()));
 		case BARON:		int result = builder.hands().get(Player.ONE).compareTo(builder.hands().get(Player.TWO));
 						//System.out.println("baron: " + result);
 						return builder.winner(
 								(result == 0) ? Optional.empty() :
-								Optional.of((result > 0) ? Player.ONE : Player.TWO));
+								Optional.of((result < 0) ? Player.ONE : Player.TWO));
 		case PRIEST:	//System.out.printf("Result of Priest: %s has %s%n",
 						//		action.targetPlayer.get(), builder.hands().get(action.targetPlayer.get()));
 						return builder; // TODO I don't know how to handle this

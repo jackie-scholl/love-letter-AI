@@ -22,16 +22,16 @@ public interface GameState3 {
 	public int deckSize();
 
 
-	default public PlayerState3 state(Player player) {
+	default public PlayerState3 playerState(Player player) {
 		return players().get(player);
 	}
 	
 	default public PlayerState3 player1() {
-		return state(Player.ONE);
+		return playerState(Player.ONE);
 	}
 	
 	default public PlayerState3 player2() {
-		return state(Player.TWO);
+		return playerState(Player.TWO);
 	}
 	
 	public Builder toBuilder();
@@ -94,7 +94,7 @@ class GS3Helper {
 		}
 
 		// If the targeted player is protected, invalid action
-		if (action.targetPlayer.isPresent() && state.state(action.targetPlayer.get()).isProtected()) {
+		if (action.targetPlayer.isPresent() && state.playerState(action.targetPlayer.get()).isProtected()) {
 			return false;
 		}
 		// TODO: Is there more to do here?

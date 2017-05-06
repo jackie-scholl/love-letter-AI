@@ -1,9 +1,6 @@
 package com.github.raptortechjs.LoveLetter.TwoPlayer.Game;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import com.github.raptortechjs.LoveLetter.TwoPlayer.Players.*;
 
@@ -12,7 +9,7 @@ public class Main {
 	public static void main(String[] args) {
 		System.out.println("hello world");
 		
-		Game g = new Game(new ConsolePlayer(), new ConsolePlayer(), new ConsoleLogger());
+		//Game g = new Game(new ConsolePlayer(), /*new ConsolePlayer(), */new Expectiminimaxer(4), new ConsoleLogger());
 		//g.runThrough();
 		
 		for (int i=0; i<100; i++) {
@@ -20,15 +17,17 @@ public class Main {
 			
 			List<Double> scores = new ArrayList<>();
 			
-			for (int j=0; j < 1000; j++) {
+			for (int j=0; j < 50; j++) {
 				FullGameState3 s = FullGameState3.createNewGame();
 				//System.out.println(s.deckSize());
-				double score = Expectiminimaxer.score(s, /*i*/4);
+				double score = Expectiminimaxer.score(s, 5);
 				scores.add(score);
 			}
 			double average = scores.stream().mapToDouble(x -> x).average().getAsDouble();
+			//DoubleSummaryStatistics stats = scores.stream().mapToDouble(x -> x).summaryStatistics();
+			
 			long end = System.currentTimeMillis();
-			double diff = (end-start)/1000.0;
+			double diff = (end-start)/1000.0 /*/ scores.size()*/;
 			System.out.printf("%d: %.2f; %.3f seconds%n", i, average, diff);
 		}
 		

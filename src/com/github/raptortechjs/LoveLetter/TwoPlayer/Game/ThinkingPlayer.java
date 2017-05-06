@@ -5,5 +5,5 @@ package com.github.raptortechjs.LoveLetter.TwoPlayer.Game;
  * of a player within the game model.
  */
 public interface ThinkingPlayer extends GameObserver {
-	public Action chooseAction(Player us, GameState3 publicGameState, Card inHand, Card justDrawn);
+	public Action chooseAction(Player us, FullGameState3 publicGameState, Card inHand, Card justDrawn);
 }
