@@ -5,10 +5,11 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 
+import com.github.raptortechjs.LoveLetter.TwoPlayer.AI.AI;
 import com.google.common.collect.ImmutableSet;
 
 public class Game {
-	private FullGameState3 state;
+	private FullGameState state;
 	private final ThinkingPlayer player1;
 	private final ThinkingPlayer player2;
 
@@ -18,9 +19,9 @@ public class Game {
 	public Game(ThinkingPlayer player1, ThinkingPlayer player2, GameObserver... observers) {
 		this.player1 = player1;
 		this.player2 = player2;
-		state = FullGameState3.createNewGame();
+		state = FullGameState.createNewGame(Optional.of(AI.getStandardVisibleDiscard(AI.NUMBER_OF_CARDS_TO_USE)));
 		//System.out.println(state);
-		this.observers = ImmutableSet.of(observers[0]);
+		this.observers = ImmutableSet.copyOf(observers);
 	}
 
 	public void nextStep() {
@@ -28,12 +29,18 @@ public class Game {
 			return;
 		}
 
-		GameState3 initialState = state.getPublicState();
+		GameState initialState = state.getPublicState();
 		state = state.startTurn();
 		Action action = chooseAction(state);
+		
+		if (FullGameState.TARGET_CARD_CONTROLS_PRINCE_PICK && action.card == Card.PRINCE) {
+			Card targetCard = FGS3Helper.getRandomFromDeck(state.deck());
+			action = new Action(action.player, action.card, action.targetPlayer, Optional.of(targetCard));
+		}
+		
 		state = state.endTurn(action);
 
-		GameState3 currentState = state.getPublicState();
+		GameState currentState = state.getPublicState();
 
 		for (GameObserver o : observers) {
 			o.accept(action, initialState, currentState);
@@ -45,9 +52,10 @@ public class Game {
 		while (!state.winner().isPresent()) {
 			nextStep();
 		}
+		System.out.println(state.hands());
 	}
 
-	private Action chooseAction(FullGameState3 state) {
+	private Action chooseAction(FullGameState state) {
 		ThinkingPlayer current = (state.whoseTurn() == Player.ONE ? player1 : player2);
 		Card currentPlayerHand = state.hand(state.whoseTurn());
 

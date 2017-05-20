@@ -8,7 +8,7 @@ import java.util.List;
 
 import com.github.raptortechjs.LoveLetter.TwoPlayer.Game.Action;
 import com.github.raptortechjs.LoveLetter.TwoPlayer.Game.GameObserver;
-import com.github.raptortechjs.LoveLetter.TwoPlayer.Game.GameState3;
+import com.github.raptortechjs.LoveLetter.TwoPlayer.Game.GameState;
 
 public class HashingLogger implements GameObserver {
 	//private List<Action> history = new ArrayList<>();
@@ -25,7 +25,7 @@ public class HashingLogger implements GameObserver {
 	}
 	
 	
-	public void accept(Action action, GameState3 oldState, GameState3 newState) {
+	public void accept(Action action, GameState oldState, GameState newState) {
 		//history.add(action);
 		m.update(BigInteger.valueOf(action.normalize().hashCode()).toByteArray());
 		
