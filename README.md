@@ -33,4 +33,10 @@ Love Letter is a game that uses a custom deck of 16 cards. On each turn, a playe
 
  I believe this work can be significantly expanded in the future by using sampling to avoid the expensive analytical work of computing a probability distribution over the whole game, and also by treating multiple information sets as one so that we can get reasonably good policies with fewer samples. One possible approach to treating multiple information sets as one is imperfect recall, where we only consider the last k moves for the purpose of equality, effectively "forgetting" older moves. This ensures that the information sets that we consider as the same are, in fact, reasonably similar, and therefore we can expect that a single policy should work reasonably well for all of them.
  
- Another option is to abandon the idea of counterfactual regret minimization and switch to some form of Monte Carlo Tree Search.
+ Another option is to abandon the idea of counterfactual regret minimization and switch to some form of Monte Carlo Tree Search. I suspect that determinization might not actually be that bad in this case.
+ 
+ ### References
+ 
+  - I relied heavily on [*Regret Minimization in Games with Incomplete Information*](http://poker.cs.ualberta.ca/publications/NIPS07-cfr.pdf) by Zinkevich et. al., which introduced the idea of Counterfactual Regret Minimization, to implement the algorithm.
+  - I also read [*Information Set Monte Carlo Tree Search*](http://ieeexplore.ieee.org/document/6203567/) by Cowling et. al., which introduced the idea of Information Set Monte Carlo Tree Search and helpfully explained the different approaches for applying MCTS to games of imperfect information and the advantages and drawbacks of each, which was very helpful when deciding which approach to take.
+  - I could not possibly have done this without the help of Dr. John Doucette.
