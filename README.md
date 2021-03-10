@@ -1,6 +1,11 @@
 # love-letter-AI
 An Artificial Intelligence for the card game Love Letter, using counterfactual regret minimization.
 
+If you're exploring this project for the first time, you might start with:
+- [FullGameState.java](src/com/github/raptortechjs/LoveLetter/TwoPlayer/Game/FullGameState.java) has most of the logic for implementing the core game
+- [CounterfactualRegret.java](src/com/github/raptortechjs/LoveLetter/TwoPlayer/AI/CounterfactualRegret.java) implements the Counterfactual Regret Minimization algorithm
+- [GameStateDistribution.java](src/com/github/raptortechjs/LoveLetter/TwoPlayer/AI/GameStateDistribution.java) calculates the probabilities of various game states occuring
+
 ### Abstract
 
 I set out to create an Artificial Intelligence that could play the two-player version of the card game Love Letter reasonably well against an amateur human opponent. I succesfully created a program that could play near-perfectly on significantly reduced versions of the game, using counterfactual regret minimization to find approximate Nash equilibria. I expect that with future optimizations and significant additional compute time, the complete game could be solved with this technique.
