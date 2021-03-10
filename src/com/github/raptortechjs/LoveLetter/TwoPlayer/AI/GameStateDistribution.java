@@ -55,7 +55,6 @@ public class GameStateDistribution {
 	             }
 	           });
 	
-	//private final LoadingCache<FullGameState, Map<FullGameState, Double>> halfStepDistributionCache;
 	private final Policy policy;
 	
 	public GameStateDistribution(Policy p) {
@@ -64,20 +63,9 @@ public class GameStateDistribution {
 	
 	public GameStateDistribution(Policy p, Optional<Integer> maxCacheSize) {
 		policy = p;
-		/*halfStepDistributionCache = CacheBuilder.newBuilder()
-			.maximumSize(maxCacheSize.orElse(AI.MAX_CACHE_SIZE))
-			//.maximumSize(10000)
-			.concurrencyLevel(40)
-			.build(
-	           new CacheLoader<FullGameState, Map<FullGameState, Double>>() {
-	             public Map<FullGameState, Double> load(FullGameState key)  {
-	               return calculateHalfStepDistribution(key, p);
-	             }
-	           });*/
 	}
 	
 	private Map<FullGameState, Double> getHalfStepDistribution(FullGameState state) {
-		//return halfStepDistributionCache.getUnchecked(state);
 		return halfStepDistributionCache2.getUnchecked(new PolicyFGSTuple(policy, state));
 	}
 	
@@ -122,49 +110,12 @@ public class GameStateDistribution {
 	public Map<FullGameState, Double> getProbabilities(Collection<Card> visibleDiscard) {
 		return getProbabilities(initialDistribution(visibleDiscard));
 	}
-	
-	/*public double probabilityOfFullGameStateGiven(FullGameState start, FullGameState end) {
-		if (start.equals(end)) {
-			return 1;
-		} else if (start.history().size() > end.history().size() ||
-				!end.history().subList(0, start.history().size()).equals(start.history()) ||
-				start.winner().isPresent()) {
-			return 0;
-		}
-		return getHalfStepDistribution(start).entrySet().stream()
-				.mapToDouble(e -> this.probabilityOfFullGameStateGiven(e.getKey(), end) * e.getValue()).sum();
-	}
-	
-	public double probabilityOfFullGameStateGiven(Map<FullGameState, Double> distribution, FullGameState end) {
-		return distribution.entrySet().stream()
-				.mapToDouble(e -> probabilityOfFullGameStateGiven(e.getKey(), end) * e.getValue()).sum();
-	}
-	
-	public double probabilityOfFullGameStateGiven(Collection<Card> visibleDiscard, FullGameState end) {
-		return probabilityOfFullGameStateGiven(initialDistribution(visibleDiscard), end);
-	}*/
-	
-	
-	
-	/*public double probabilityOfFullGameStateGiven(FullGameState start, FullGameState end) {
-		return probabilityOfStateConditionGiven(start, (end) -> start.history().size() > end.history().size() ||
-				!end.history().subList(0, start.history().size()).equals(start.history()) ||
-				start.winner().isPresent(), )
-	}
-	
-	public double probabilityOfFullGameStateGiven(Map<FullGameState, Double> distribution, FullGameState end) {
-		return distribution.entrySet().stream()
-				.mapToDouble(e -> probabilityOfFullGameStateGiven(e.getKey(), end) * e.getValue()).sum();
-	}*/
-	
+		
 	public double probabilityOfFullGameStateGiven(Collection<Card> visibleDiscard, FullGameState end) {
 		List<Action> endHistory = end.history();
 		return probabilityOfStateConditionGiven(initialDistribution(visibleDiscard),
 				(start) ->
-					//start.history().size() > end.history().size() ||
 					start.turnNumber() > end.turnNumber() ||
-					//!end.history().subList(0, start.history().size()).equals(start.history()) ||
-					//!end.history().subList(0, start.turnNumber()).equals(start.history()) ||
 					!endHistory.subList(0, start.turnNumber()).equals(start.history()) ||
 					start.winner().isPresent(),
 				end::equals);
@@ -172,7 +123,6 @@ public class GameStateDistribution {
 	
 	private double probabilityOfStateConditionGiven(FullGameState start, Predicate<FullGameState> shouldQuit, Predicate<FullGameState> shouldInclude) {
 		if (shouldInclude.test(start)) {
-			//System.out.println("E:" + start);
 			return 1;
 		} else if (shouldQuit.test(start)) {
 			return 0;
@@ -191,31 +141,6 @@ public class GameStateDistribution {
 		return probabilityOfStateConditionGiven(initialDistribution(visibleDiscard), shouldQuit, shouldInclude);
 	}
 	
-
-	// broken, I think
-	/*public double probabilityOfHistoryGiven(FullGameState start, GameState end) {
-		if (start.history().equals(end.history())) {
-			return 1;
-		} else if (start.history().size() >= end.history().size() ||
-				!end.history().subList(0, start.history().size()).equals(start.history()) ||
-				start.winner().isPresent()) {
-			return 0;
-		}
-		
-		return getHalfStepDistribution(start).entrySet().stream()
-				.mapToDouble(e -> this.probabilityOfHistoryGiven(e.getKey(), end) * e.getValue()).sum();
-	}
-	
-	public double probabilityOfHistoryGiven(Map<FullGameState, Double> distribution, GameState history) {
-		return distribution.entrySet().stream()
-				.mapToDouble(e -> probabilityOfHistoryGiven(e.getKey(), history) * e.getValue()).sum();
-	}
-	
-	public double probabilityOfHistoryGiven(Collection<Card> visibleDiscard, GameState history) {
-		return probabilityOfHistoryGiven(initialDistribution(visibleDiscard), history);
-	}*/
-	
-	
 	private Set<FullGameState> getHalfTurnGameStates(FullGameState state) {
 		return getHalfStepDistribution(state).keySet();
 	}
@@ -229,8 +154,6 @@ public class GameStateDistribution {
 				.collect(Collectors.toCollection(HashSet::new));
 		set.add(state);
 		return Collections.unmodifiableSet(set);
-		
-		//return ImmutableSet.<FullGameState>builder().addAll(set).add(state).build();
 	}
 	
 	public Set<FullGameState> getAllGameStates(Collection<Card> visibleDiscard) {
@@ -254,8 +177,6 @@ public class GameStateDistribution {
 				.collect(Collectors.toCollection(HashSet::new));
 		set.add(state);
 		return Collections.unmodifiableSet(set);
-		
-		//return ImmutableSet.<FullGameState>builder().addAll(set).add(state).build();
 	}
 	
 	public Set<FullGameState> getAllGameStates(Collection<Card> visibleDiscard, Predicate<FullGameState> exclude) {
@@ -353,16 +274,7 @@ public class GameStateDistribution {
 		choiceDistribution = Distributions.normalize(choiceDistribution);
 		
 		for (Map.Entry<Action, Double> e : choiceDistribution.entrySet()) {
-			/*if (e.getKey().card != Card.PRINCE || !FullGameState.TARGET_CARD_CONTROLS_PRINCE_PICK) {
-				FullGameState s = state.endTurn(e.getKey());
-				map.put(s, e.getValue());
-			} else {
-				Map<FullGameState, Double> gameDistribution = calculatePrinceDistribution(state, e.getKey());
-				//System.out.println(gameDistribution);
-				Distributions.mergeInByAdding(map, Maps.transformValues(gameDistribution, v -> v * e.getValue()));
-			}*/
 			Map<FullGameState, Double> endTurnDistribution = calculateEndTurnDistribution(state, e.getKey());
-
 			Distributions.mergeInByAdding(map, Maps.transformValues(endTurnDistribution, v -> v * e.getValue()));
 		}
 		
@@ -417,18 +329,6 @@ public class GameStateDistribution {
 }
 
 class GSD2 {
-	/*private static final LoadingCache<Policy, GameStateDistribution> gsdInstanceCache = 
-			CacheBuilder.newBuilder()
-		       //.maximumSize(3)
-				.maximumSize(200)
-		       .concurrencyLevel(40)
-		       .build(
-		           new CacheLoader<Policy, GameStateDistribution>() {
-		             public GameStateDistribution load(Policy key)  {
-		               return new GameStateDistribution(key);
-		             }
-		           });*/
-	
 	public final Collection<Card> visibleDiscard;
 	public final GameStateDistribution distribution;
 	
@@ -442,7 +342,6 @@ class GSD2 {
 	}
 	
 	public static GSD2 create(Collection<Card> initDiscard, Policy policy) {
-		//return create(initDiscard, gsdInstanceCache.getUnchecked(policy));
 		return create(initDiscard, new GameStateDistribution(policy));
 	}
 	

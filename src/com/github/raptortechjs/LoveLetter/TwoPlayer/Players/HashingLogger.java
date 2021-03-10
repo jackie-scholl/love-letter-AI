@@ -11,7 +11,6 @@ import com.github.raptortechjs.LoveLetter.TwoPlayer.Game.GameObserver;
 import com.github.raptortechjs.LoveLetter.TwoPlayer.Game.GameState;
 
 public class HashingLogger implements GameObserver {
-	//private List<Action> history = new ArrayList<>();
 	private final MessageDigest m;
 	
 	public HashingLogger() {
@@ -26,20 +25,14 @@ public class HashingLogger implements GameObserver {
 	
 	
 	public void accept(Action action, GameState oldState, GameState newState) {
-		//history.add(action);
 		m.update(BigInteger.valueOf(action.normalize().hashCode()).toByteArray());
 		
 	}
 	
 	public String digest() {
-		/*String plaintext = "your text here";
-		MessageDigest m = MessageDigest.getInstance("MD5");
-		m.reset();
-		m.update(plaintext.getBytes());*/
 		byte[] digest = m.digest();
 		BigInteger bigInt = new BigInteger(1,digest);
 		String hashtext = bigInt.toString(16);
 		return hashtext;
 	}
-
 }

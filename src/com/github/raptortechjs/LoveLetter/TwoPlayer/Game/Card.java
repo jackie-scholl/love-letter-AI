@@ -42,11 +42,7 @@ public enum Card {
 		
 		defaultDeck = defaultDeckBuilder.build();
 	}
-	
-	/*public static List<Card> defaultDeck() {
-		return defaultDeck;
-	}*/
-	
+		
 	private static final ImmutableMultiset<Card> defaultDeckMultiset = 
 			Arrays.stream(Card.values())
 				.map(c -> Collections.nCopies(c.numberOfCopies, c))

@@ -12,7 +12,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
-public class Expectiminimaxer /*implements ThinkingPlayer*/ {
+public class Expectiminimaxer {
 	private final int depth;
 	
 	public Expectiminimaxer(int depth) {
@@ -43,7 +43,6 @@ public class Expectiminimaxer /*implements ThinkingPlayer*/ {
 	
 	private ActionScorePair createActionScorePair(FullGameState state, Action a) {
 		FullGameState nextState = state.endTurn(a);
-		//double score = expectimax(nextState, nextState.whoseTurn(), depth, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
 		double score = -score(nextState, depth);
 		return new ActionScorePair(score, a);
 	}
@@ -63,16 +62,14 @@ public class Expectiminimaxer /*implements ThinkingPlayer*/ {
 	}
 	
 	public static double score(FullGameState state, int starting_depth) {
-		//double score = expectimax(state, state.whoseTurn(), starting_depth,
 		double score = cachingExpectimax(state, starting_depth,
 						Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
-		return score /* (state.whoseTurn() == Player.ONE ? 1 : -1)*/;
+		return score;
 	}
 	
 
 	private static volatile long statesConsidered;
-	//public static int firstDepth = -1;
-	
+
 	private static double negamax(FullGameState state, Player player, int depth, double alpha, double beta) {
 		Preconditions.checkArgument(player == state.whoseTurn());
 		Preconditions.checkArgument(state.hasJustDrawn());
@@ -89,7 +86,6 @@ public class Expectiminimaxer /*implements ThinkingPlayer*/ {
 		Collections.sort(possibleNexts, Comparator.comparingDouble(s -> heuristic(s, player)));
 		double bestValue = Double.NEGATIVE_INFINITY;
 		for (FullGameState s : possibleNexts) {
-			//double v = -expectimax(s, player.other(), depth-1, -beta, -alpha);
 			double v = -cachingExpectimax(s, depth-1, -beta, -alpha);
 			bestValue = Math.max(bestValue, v);
 			alpha = Math.max(alpha, v);
@@ -121,13 +117,10 @@ public class Expectiminimaxer /*implements ThinkingPlayer*/ {
 	   
 	private static LoadingCache<CacheHelperKey, Double> cache = CacheBuilder.newBuilder()
 			.maximumSize(1000)
-			//.maximumWeight((long) 1e9)
-			//.weigher((CacheHelperKey k, Double v) -> (int) Math.pow(10, 10-k.depth))
 			.build(loader);
 	
 	private static double cachingExpectimax(FullGameState state, int depth, double alpha, double beta) {
 		return expectimax(state, state.whoseTurn(), depth, alpha, beta);
-		//return cache.getUnchecked(new CacheHelperKey(state, depth, alpha, beta));
 	}
 	
 	static class CacheHelperKey {
@@ -207,13 +200,10 @@ public class Expectiminimaxer /*implements ThinkingPlayer*/ {
 			bestChoices.add(topCardWithCount);
 		}
 		
-		return Collections.unmodifiableList(bestChoices)
-				//.subList(0, 1)
-				;
+		return Collections.unmodifiableList(bestChoices);
 	}
 	
 	private static double heuristic(FullGameState state, Player player) {
 		return (state.hand(player).value - state.hand(player.other()).value)*10;
 	}
-
 }

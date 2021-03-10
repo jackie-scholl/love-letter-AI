@@ -21,12 +21,9 @@ public interface GameState {
 	public boolean hasJustDrawn();
 	public int deckSize();
 	
-	//public List<Action> history();
 	public Optional<Action> thisAction();
 	
 	public Optional<? extends GameState> lastHalfStep();
-	//public GameState lastHalfStep();
-
 
 	default public PlayerState3 playerState(Player player) {
 		return players().get(player);
@@ -51,10 +48,7 @@ public interface GameState {
 		public GameState build() {
 			GameState state = super.build();
 			Preconditions.checkState(state.players().keySet().equals(ImmutableSet.of(Player.ONE, Player.TWO)));
-			//Preconditions.checkState(state.visibleDiscard().size() == 3);
 			Preconditions.checkState(state.turnNumber() >= 0);
-			//Preconditions.checkState(state.deckSize() >= 0);
-			//assert state.turnNumber() == state.history().size();
 			return state;
 		}
 	}
@@ -69,12 +63,6 @@ public interface GameState {
 	}
 	
 	public default List<Action> history() {
-		/*List<Action> currentHistory = thisAction().isPresent() ?
-				ImmutableList.of(thisAction().get()) : ImmutableList.of();
-		if (!lastHalfStep().isPresent()) {
-			return currentHistory;
-		}
-		return ImmutableList.<Action>builder().addAll(lastHalfStep().get().history()).addAll(currentHistory).build();*/
 		return historyBuilder().build();
 	}
 	
@@ -90,15 +78,6 @@ public interface GameState {
 		}
 		return builder;
 	}
-	
-	/*default GameState constructPrevious() {
-		if (hasJustDrawn()) {
-			return this.toBuilder().hasJustDrawn(false).mapDeckSize(i -> i + 1).clearWinner().build();
-		} else {
-			Preconditions.checkState(!history().isEmpty());
-			
-		}
-	}*/
 	
 	public static ImmutableMultiset<Card> remaining(ImmutableMultiset<Card> ms) {
 		Multiset<Card> temp = HashMultiset.<Card>create(Card.defaultDeckMultiset());
@@ -147,7 +126,6 @@ class GS3Helper {
 			return false;
 		}
 		
-		// TODO: Is there more to do here?
 		return true;
 	}
 	

@@ -10,10 +10,8 @@ public class ConsoleLogger implements GameObserver {
 
 	@Override
 	public void accept(Action action, GameState oldState, GameState newState) {
-		// TODO Auto-generated method stub
 		System.out.println("--------");
 		System.out.printf("Action happened: %s%n", action);
-		//System.out.printf("Discards before: %s%n", getDiscardedCards(oldState));
 		System.out.printf("Discards after: %s%n", getDiscardedCards(newState));
 		if (newState.winner().isPresent()) {
 			System.out.printf("Winner: %s%n", newState.winner().get());

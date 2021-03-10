@@ -15,10 +15,8 @@ public class RandomPlayer implements ThinkingPlayer {
 		do {
 			Card choice = r.nextBoolean() ? inHand : justDrawn;
 			
-			//PlayerNumber targetPlayer = r.nextBoolean() ? PlayerNumber.PLAYER_1 : PlayerNumber.PLAYER_2;
 			Player targetPlayer = state.playerState(us.other()).isProtected() ? us : us.other();
 			
-			//Card targetCard = Card.PRINCESS;
 			Card targetCard = Card.values()[r.nextInt(8)];
 			
 			action = new Action(us, choice, Optional.of(targetPlayer), Optional.of(targetCard));

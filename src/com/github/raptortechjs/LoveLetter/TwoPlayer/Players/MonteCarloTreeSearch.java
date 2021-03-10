@@ -9,19 +9,11 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 
 public class MonteCarloTreeSearch implements GameObserver {
-	//private GameState3 initialGameState = null;
 	final List<Action> actionHistory = new ArrayList<>();
 
 	public void accept(Action action, GameState oldState, GameState newState) {
-		/*if (initialGameState == null) {
-			initialGameState = oldState;
-		}*/
 		actionHistory.add(action);
 	}
-	
-	/*public Optional<Map.Entry<FullGameState3, Double>> sampleStates() {
-		return sampleStates(initialGameState.visibleDiscard(), ImmutableList.copyOf(actionHistory));
-	}*/
 	
 	public static Optional<Map.Entry<FullGameState, Double>> sampleStates(ImmutableList<Card> visibleDiscard,
 			ImmutableList<Action> actionHistory) {
@@ -78,8 +70,6 @@ public class MonteCarloTreeSearch implements GameObserver {
 	}
 	
 	public Map<Card, Double> sampleOpponentHand(Player us, Card ourHand, long numberOfSamples, List<Card> visibleDiscard) {
-		//Preconditions.checkNotNull(initialGameState);
-		//System.out.println(actionHistory);
 		return sampleOpponentHand(ImmutableList.copyOf(visibleDiscard),
 				ImmutableList.copyOf(actionHistory), ourHand, us, numberOfSamples);
 	}
@@ -87,9 +77,6 @@ public class MonteCarloTreeSearch implements GameObserver {
 	public static Map<Card, Double> sampleOpponentHand(ImmutableList<Card> visibleDiscard,
 			ImmutableList<Action> actionHistory, Card ourHand, Player us, long numberOfSamples) {
 		Map<Card, Double> distribution = new EnumMap<Card, Double>(Card.class);
-		/*for (Card c : Card.values()) {
-			distribution.put(c, 0.0);
-		}*/
 		
 		for (int i=0; i<numberOfSamples; i++) {
 			Optional<Map.Entry<FullGameState, Double>> result = sampleStates(visibleDiscard, actionHistory);
@@ -118,19 +105,5 @@ public class MonteCarloTreeSearch implements GameObserver {
 		}
 		
 		return Collections.unmodifiableMap(probabilities);
-		//Preconditions.checkArgument(expression);
 	}
-	
-	/*public static Action chooseAction(FullGameState3 state) {
-		return chooseAction(state.getPublicState(), state.hand(state.whoseTurn()), state.drawnCard().get());
-	}
-
-	private static final Random r = new Random();
-	private static Action chooseAction(GameState3 state, Card inHand, Card drawnCard) {
-		List<Action> possibleActions = Expectiminimaxer.validActions(state, inHand, drawnCard)
-					.collect(Collectors.toList());
-		int index = r.nextInt(possibleActions.size());
-		return possibleActions.get(index);
-	}*/
-
 }

@@ -20,7 +20,6 @@ public class Game {
 		this.player1 = player1;
 		this.player2 = player2;
 		state = FullGameState.createNewGame(Optional.of(AI.getStandardVisibleDiscard(AI.NUMBER_OF_CARDS_TO_USE)));
-		//System.out.println(state);
 		this.observers = ImmutableSet.copyOf(observers);
 	}
 

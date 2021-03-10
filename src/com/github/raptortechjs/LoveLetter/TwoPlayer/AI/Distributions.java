@@ -73,8 +73,6 @@ public class Distributions {
 		T element = elementsToConsider.get(0);
 		List<T> remaining = elementsToConsider.subList(1, elementsToConsider.size());
 
-		//System.out.println(element + " : " + remaining);
-		
 		Set<Multiset<T>> result = new LinkedHashSet<>();
 		
 		for (int i=0; i <= origin.count(element); i++) {
@@ -88,7 +86,6 @@ public class Distributions {
 
 	public static <T> Map<T, Double> normalize(Map<T, Double> distribution) {
 		Preconditions.checkNotNull(distribution);
-		//System.out.println(distribution);
 		assert distribution.size() != 0;
 		double sum = sum(distribution);
 		Map<T, Double> newDistribution = Maps.transformValues(distribution, v -> v / sum);
@@ -110,5 +107,4 @@ public class Distributions {
 			distributionToModify.merge(e.getKey(), e.getValue(), Double::sum);
 		}
 	}
-
 }

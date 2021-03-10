@@ -21,18 +21,13 @@ public class ConsolePlayer implements ThinkingPlayer {
 	}
 
 	public Action chooseAction(Player us, GameState state, Card inHand, Card justDrawn) {
-		//GameState3 state = GameState3.fromPublicGameState(state2);
 		Action actionChoice;
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
 		do {
 			try {
 				SortedMultiset<Card> remaining = TreeMultiset.create(state.remainingCards());
 				System.out.printf("Remaining cards: %s%n", remaining);
-
-
-				//long start = System.currentTimeMillis();
 				System.out.printf("They have2:%s%n", getOpponentHandDistribution2(us, state, inHand, justDrawn));
-				//System.out.printf("They have: %s%n", getOpponentHandDistribution(us, state, inHand, justDrawn));
 				doThings(us, state, inHand, justDrawn);
 				
 				System.out.printf("You are %s, and have %s and %s. Which do you choose?%n", us, inHand, justDrawn);
@@ -61,16 +56,11 @@ public class ConsolePlayer implements ThinkingPlayer {
 		Optional<Player> targetPlayer = Optional.empty();
 		if (array.length > 1) {
 			targetPlayer = Optional.of(getTargetPlayer(array[1], us));
-			//targetPlayer = Optional.of(PlayerNumber.valueOf(array[1]));
 		}
 		Optional<Card> targetCard = Optional.empty();
 		if (array.length > 2) {
 			targetCard = Optional.of(Card.valueOf(array[2]));
 		}
-		
-		/*if (FullGameState.TARGET_CARD_CONTROLS_PRINCE_PICK && cardChoice == Card.PRINCE) {
-			//targetCard = Optional.of()
-		}*/
 		
 		return new Action(us, cardChoice, targetPlayer, targetCard);
 	}
@@ -123,35 +113,16 @@ public class ConsolePlayer implements ThinkingPlayer {
 		FullGameState state2 = (FullGameState) state;
 		
 		System.out.println(state2.hands());
-		//System.out.printf("Overall probability-1: %s%n", new GameStateDistribution(Policies.uniformRandom()).getHalfStepDistribution(((FullGameState) state).lastHalfStep().get()).get((FullGameState) state));
-		//System.out.printf("Overall probability-1: %s%n", new GameStateDistribution(Policies.uniformRandom()).getHalfStepDistribution(((FullGameState) state).lastHalfStep().get()).entrySet().stream().filter(e -> e.getKey().equals(state)).collect(Collectors.toList()));
-		//System.out.printf("Overall probability 0: %e%n", new GameStateDistribution(Policies.uniformRandom()).probabilityOfFullGameStateGiven(((FullGameState) state).lastHalfStep().get(), (FullGameState) state));
-		//System.out.printf("Overall probability 0: %e%n", GameStateDistribution.initialDistribution(state.visibleDiscard()).get(((FullGameState) state).lastHalfStep().get()));
 		System.out.printf("Overall probability 1: %f%n", CounterfactualRegret.probability(Policies.uniformRandom(), state2, state.visibleDiscard()));
 		System.out.printf("Overall probability 2: %f%n", CounterfactualRegret.probabilityP(us, Policies.uniformRandom(), state2, state.visibleDiscard()));
-		//System.out.printf("Overall probability 25:%f%n", CounterfactualRegret.probability3(us, Policies.uniformRandom(), (FullGameState) state, state.visibleDiscard()));
 		System.out.printf("Overall probability 3: %f%n", CounterfactualRegret.probabilityPNeg(us, Policies.uniformRandom(), state2, state.visibleDiscard()));
 		
 		shouldBeEqual(CounterfactualRegret.probability(Policies.uniformRandom(), state2, state.visibleDiscard()), 
 			CounterfactualRegret.probabilityP(us, Policies.uniformRandom(), state2, state.visibleDiscard()) 
 			* CounterfactualRegret.probabilityPNeg(us, Policies.uniformRandom(), state2, state.visibleDiscard()));
 
-		//System.out.printf("Overall probability 4: %f%n", CounterfactualRegret.probability(us, Policies.uniformRandom(), state2, state.visibleDiscard()) *
-		//		CounterfactualRegret.probabilityNeg(us, Policies.uniformRandom(), state2, state.visibleDiscard()));
-		
 		InformationSet is = InformationSet.fromFullGameState(state2, us);
 
-		//System.out.printf("Overall probability 5: %f%n", CounterfactualRegret.probability2(Policies.uniformRandom(), is, state.visibleDiscard()));
-		//System.out.printf("Overall probability 6: %f%n", CounterfactualRegret.probability2P(us, Policies.uniformRandom(), is, state.visibleDiscard()));
-		//System.out.printf("Overall probability 7: %f%n", CounterfactualRegret.probability2PNeg(us, Policies.uniformRandom(), is, state.visibleDiscard()));
-		
-		//shouldBeEqual(CounterfactualRegret.probability2(Policies.uniformRandom(),
-		//		InformationSet.fromFullGameState(((FullGameState) state), us), state.visibleDiscard()), CounterfactualRegret.probability2P(us, Policies.uniformRandom(), InformationSet.fromFullGameState(((FullGameState) state), us), state.visibleDiscard())
-		//				* CounterfactualRegret.probability2PNeg(us, Policies.uniformRandom(), InformationSet.fromFullGameState(((FullGameState) state), us), state.visibleDiscard()));
-		//System.out.printf("Overall probability 8: %f%n", CounterfactualRegret.probability(us, Policies.uniformRandom(), InformationSet.fromFullGameState(((FullGameState) state), us), state.visibleDiscard())
-		//		* CounterfactualRegret.probabilityNeg(us, Policies.uniformRandom(), InformationSet.fromFullGameState(((FullGameState) state), us), state.visibleDiscard()));
-		//System.out.printf("Overall probability 6: %f%n", CounterfactualRegret.probability2(Policies.uniformRandom(), InformationSet.fromFullGameState(((FullGameState) state).lastHalfStep().get(), us), state.visibleDiscard()));
-		
 		System.out.printf("Time taken: %.3f%n", (System.currentTimeMillis() - start)/1000.0);
 		System.out.println(Expectiminimaxer.validActions(state, inHand, justDrawn)
 				.sorted(Comparator.<Action, Integer>comparing(a -> a.card.value)
@@ -164,5 +135,4 @@ public class ConsolePlayer implements ThinkingPlayer {
 			assert Math.abs(a - b) < 1e-9 : "Values should be equal: " + a + " and " + b;
 		}
 	}
-
 }

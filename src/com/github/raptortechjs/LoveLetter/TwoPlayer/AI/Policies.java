@@ -24,8 +24,6 @@ public class Policies {
 				.collect(Collectors.toMap(Functions.identity(), x -> 1.0));
 	};
 			
-	
-	//private static final Policy uniformRandom = new ReasonableUniformPolicy();
 	public static Policy uniformRandom() {
 		return uniformRandom2;
 	}
@@ -80,11 +78,7 @@ public class Policies {
 			return playerMap.get(set.perspective()).choiceDistribution(set);
 		}
 	}
-	
-	/*private static class GeneralSplitPolicy implements Policy {
-		private final Predicate<InformationSet> ch
-	}*/
-	
+
 	static class ExplicitPolicy implements Policy {
 		private final ImmutableTable<InformationSet, Action, Double> policyMap;
 		
@@ -123,8 +117,6 @@ public class Policies {
 
 		@Override
 		public String toString() {
-			//return "ExplicitPolicy [policyMap=" + policyMap + "]";
-			//return "ExplicitPolicy [policyMap=" + String.format("%8X", policyMap.hashCode()) + ": " + policyMap.cellSet().stream().map(x -> x.getValue()).collect(Collectors.toList()) + "]";
 			return "ExplicitPolicy [policyMap=" + String.format("%8X", policyMap.hashCode()) + "]";
 		}
 	}

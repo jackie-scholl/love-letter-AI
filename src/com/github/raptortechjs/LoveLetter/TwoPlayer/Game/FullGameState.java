@@ -65,44 +65,13 @@ public abstract class FullGameState implements GameState {
 					&& Objects.equals(thisAction(), other.thisAction());
 		}
 		
-		/*boolean equals2 =
-			Objects.equals(deckSize(), other.deckSize())
-				&& Objects.equals(hasJustDrawn(), other.hasJustDrawn())
-				&& Objects.equals(players(), other.players())
-				&& Objects.equals(turnNumber(), other.turnNumber())
-				&& Objects.equals(visibleDiscard(), other.visibleDiscard())
-				&& Objects.equals(whoseTurn(), other.whoseTurn())
-				&& Objects.equals(winner(), other.winner())
-				&& Objects.equals(hands(), other.hands())
-				&& Objects.equals(drawnCard(), other.drawnCard())
-				&& Objects.equals(optionalDeck(), other.optionalDeck())
-				&& Objects.equals(thisAction(), other.thisAction())
-				&& Objects.equals(lastHalfStep(), other.lastHalfStep())
-				&& Objects.equals(history(), other.history());
-		
-		assert equals1 == equals2;*/
-		
 		return equals1;
 	}
 	
 	private int hashCode = 0;
 
 	public int hashCode() {
-		//return hashCode;
 		if (hashCode == 0) {
-			/*hashCode = Objects.hash(
-					deckSize(),
-					hasJustDrawn(),
-					history(),
-					players(),
-					turnNumber(),
-					visibleDiscard(),
-					whoseTurn(),
-					winner(),
-					hands(),
-					drawnCard(),
-					optionalDeck(),
-					lastHalfStep());*/
 			if (lastHalfStep().isPresent()) {
 				hashCode = Objects.hash(
 						drawnCard(),
@@ -119,17 +88,10 @@ public abstract class FullGameState implements GameState {
 			}
 		}
 		return hashCode;
-		//return 0;
-		//return hashCode & 0x3FF;
 	}
 
 	public GameState.Builder toBuilder() {
 		return new GameState.Builder().mergeFrom(this);
-		/*return new GameState.Builder()
-				.addAllVisibleDiscard(visibleDiscard())
-				.turnNumber(turnNumber())
-				.deckSize(deckSize())
-				.lastHalfStep(lastHalfStep().map(s -> s.getPublicState()))*/
 	}
 
 	public Builder toFullBuilder() {
@@ -139,8 +101,6 @@ public abstract class FullGameState implements GameState {
 	static class Builder extends FullGameState_Builder {
 		public Builder() {
 			drawnCard(Optional.empty());
-			// optionalDeck(Card.defaultDeckMultiset());
-			// optionalDeck(ImmutableMultiset.of());
 		}
 
 		public Multiset<Card> deck() {
@@ -153,9 +113,6 @@ public abstract class FullGameState implements GameState {
 
 			hasJustDrawn(drawnCard().isPresent());
 			FullGameState state = super.build();
-			// Preconditions.checkState(state.deckSize() == state.deck().size());
-			// Preconditions.checkState(state.cardDrawn() == state.justDrawn().isPresent());
-			//assert state.turnNumber() == state.history().size();
 			return state;
 		}
 
@@ -166,14 +123,9 @@ public abstract class FullGameState implements GameState {
 		public FullGameState.Builder removeCard(Card cardToRemove) {
 			return this.mapOptionalDeck(optDeck -> {
 				Multiset<Card> ms = optDeck;
-				// if (!(ms instanceof HashMultiset)) {
 				ms = HashMultiset.create(ms);
-				// }
 				boolean b = ms.remove(cardToRemove);
-				// System.out.println(b);
-				// return ms;
 				return Multisets.unmodifiableMultiset(ms);
-				// return ImmutableMultiset.copyOf(ms);
 			});
 		}
 
@@ -346,18 +298,7 @@ class FGS3Helper {
 	}
 
 	private static FullGameState.Builder drawCard(FullGameState.Builder builder, Card drawnCard) {
-		// Card drawnCard = builder.deck().get(builder.deck().size() - 1);
 		builder.drawnCard(drawnCard);
-		// System.out.println(x);
-		// builder.mutateDeck(l -> l.remove(l.indexOf(drawnCard)));
-		// builder.mutateDeck(ms -> {boolean b = ms.remove(drawnCard); /*System.out.println(b);*/});
-		/*builder.mapOptionalDeck(optDeck -> {
-			Multiset<Card> ms = HashMultiset.create(optDeck);
-			boolean b = ms.remove(drawnCard);
-			//System.out.println(b);
-			return ImmutableMultiset.copyOf(ms);
-			}
-		);*/
 		builder.removeCard(drawnCard);
 		return builder;
 	}
@@ -372,8 +313,6 @@ class FGS3Helper {
 		discardCard(builder, action);
 		applyAction(builder, action);
 
-		//builder.addHistory(action);
-		//builder.lastAction(action);
 		builder.thisAction(action);
 		builder.lastHalfStep(state);
 
@@ -428,28 +367,19 @@ class FGS3Helper {
 				builder.mutateHands(m -> m.put(action.targetPlayer.get(), drawn));
 			}
 		case HANDMAID:
-			// System.out.println("Handmaiding " + action.player);
 			return builder.mutatePlayers(m -> m.compute(action.player,
 					(p, s) -> s.toBuilder().isProtected(true).build()));
 		case BARON:
 			int result = builder.hands().get(action.player).compareTo(builder.hands().get(action.targetPlayer.get()));
-			// System.out.println("baron: " + result);
 			return builder.winner(
 					(result == 0) ? Optional.empty()
 							: Optional.of((result < 0) ? action.player : action.targetPlayer.get()));
 		case PRIEST:
-			// System.out.printf("Result of Priest: %s has %s%n",
-			// action.targetPlayer.get(), builder.hands().get(action.targetPlayer.get()));
 			return builder; // TODO I don't know how to handle this
 		case GUARD:
 			if (builder.hands().get(action.targetPlayer.get()) == action.targetCard.get()) {
-				//System.out.println("win by guard: " + action.targetPlayer.get().other() + " : " + builder.build());
-				//System.out.printf("Guard succeeded; target: %s; their hand: %s; winner: %s%n", action.targetCard.get(),
-				//		builder.hands().get(action.targetPlayer.get()), action.targetPlayer.get().other());
-				
 				return builder.winner(action.targetPlayer.get().other());
 			} else {
-				//System.out.printf("Guard failed; target: %s; their hand: %s%n", action.targetCard.get(), builder.hands().get(action.targetPlayer.get()));
 				return builder;
 			}
 		}
@@ -457,11 +387,9 @@ class FGS3Helper {
 	}
 
 	private static FullGameState.Builder checkWin(FullGameState.Builder builder) {
-		//assert !builder.winner().isPresent();
 		if (builder.winner().isPresent()) {
 			return builder;
 		}
-		// if (builder.deckSize() == 0) { // "a round ends if the deck is empty at the end of a turn"
 		if (builder.deck().size() <= 1) { // "a round ends if the deck is empty at the end of a turn"
 			Comparator<Player> comparator =
 			// "player with the highest ranked person wins the round"
@@ -476,7 +404,6 @@ class FGS3Helper {
 
 			Player winner = Arrays.stream(Player.values()).max(comparator).get();
 			builder.winner(winner);
-			//System.out.println("end of game: " + winner);
 			return builder;
 		} else {
 			return builder;
