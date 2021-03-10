@@ -82,6 +82,7 @@ public class Main {
 			}
 		}
 		System.out.println(visibleDiscardsSet.size());
+		long start = System.currentTimeMillis();
 
 		long totalSum3 = runTest3(visibleDiscardsSet.iterator().next());
 
